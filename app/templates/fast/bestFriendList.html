@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<ul class="talk-list">
+
+       
+<div class="talk-header">
+    <h1>Best Friend</h1>
+
+ <ul class='user-list'> 
+{% for p in bestList %}
+    {% if current_user.for_approval(True) %}
+    <li class="user">
+ <div class="user-avatar"><img src="{{current_user.avatar(128)}}"></div>
+   <p>
+       Name: {% if p.firstName %}{{ p.firstName }}{% endif %}{% if p.lastName %} {{ p.lastName }}<br>{% endif %}
+       Age: {% if p.Age %}{{ p.Age}}<br>{% endif %}
+       Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
+    </p>
+    {% if p.bio %}<p>{{ p.bio }}</p>{% endif %}
+    </li>
+    {% endif %}
+{% endfor %} 
+
+
+</ul>
+
+
+   
+
+</div>
+{% endblock %}
+
+
+
+
+
+       
+        
+
+
+
+

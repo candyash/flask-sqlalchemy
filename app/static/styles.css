@@ -1,0 +1,63 @@
+.user-profile {
+    min-height: 140px;
+}
+
+.user-avatar {
+    float: left;
+    margin-right: 16px;
+    margin-bottom: 16px;
+}
+
+ul.user-list {
+    list-style-type: none;
+    padding: 0px;
+}
+
+li.user {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding: 10px;
+}
+
+li.user:hover {
+    background-color: #f8f8f8;
+}
+
+div.user-header h2 {
+    font-size: 200%;
+    margin: 5px 0px 15px 0px;
+}
+
+div.user-header h3 {
+    font-size: 115%;
+    margin: 0px 0px 10px 0px;
+}
+
+div.user-header p {
+    font-size: 90%;
+    font-style: italic;
+    margin: 20px 0px 0px 0px;
+}
+
+
+.flask-pagedown-preview {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.flask-pagedown-preview h1, .comment-body h1 {
+    font-size: 160%;
+}
+
+.flask-pagedown-preview h2, .comment-body h2 {
+    font-size: 140%;
+}
+
+.flask-pagedown-preview h3, .comment-body h3 {
+    font-size: 120%;
+}
+
+.badge-red {
+    background-color:#d44;
+}

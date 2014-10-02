@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+
+       
+<div class="user-header">
+
+ <ul class='user-list'>
+<h1>Monkey List</h1>
+{% for p in userlist %}
+ 
+    
+    <li class="user">
+    <div class="user-avatar"><img src="{{current_user.avatar(64)}}"></div>
+    {% if current_user.for_approval(True) %}
+    <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.id)}}">+1 Add Friend</a>
+    {% endif %}
+  
+   <p>
+       Name: {% if p.firstName %}{{ p.firstName }}{% endif %}{% if p.lastName %} {{ p.lastName }}<br>{% endif %}
+       Age: {% if p.Age %}{{ p.Age}}<br>{% endif %}
+       Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
+    </p>
+    {% if p.bio %}<p>{{ p.bio }}</p>{% endif %}
+    </li>
+
+{% endfor %}
+
+
+
+</ul>
+
+
+   
+
+</div>
+{% endblock %}
+
+
+
+
+
+       
+        
+
+
+

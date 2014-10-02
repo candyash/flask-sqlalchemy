@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block page_content %}
+
+
+<ul class="user-list">
+    
+    {% for p in user_list %}
+ 
+   
+    <li class="user">
+        {% if current_user.id %}
+     <div class="user-avatar"><img src="{{current_user.avatar(64)}}"></div>
+ {% endif %}
+   <p>
+       Name: {% if p.firstName %}{{ p.firstName }}{% endif %}{% if p.lastName %} {{ p.lastName }}<br>{% endif %}
+       Age: {% if p.Age %}{{ p.Age}}<br>{% endif %}
+       Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
+    </p>
+    {% if p.bio %}<p>{{ p.bio }}</p>{% endif %}
+    </li>
+
+{% endfor %}
+</ul>
+<ul class='pager'>
+    
+    {% if pagination.has_prev%}
+    <li class="previous"><a href="{{ url_for('fast.index',id=user_list.id,  page=pagination.prev_num) }}#Entry">&larr; Older</a></li>
+    {% else %}
+    <li class="previous disabled"><a href="#">&larr; Older</a></li>
+    {% endif %}
+    {% if pagination.has_next %}
+    <li class="next"><a href="{{ url_for('fast.index',id=user_list.id, page=pagination.next_num) }}#Entry">Newer &rarr;</a></li>
+    {% else %}
+    <li class="next disabled"><a href="#">Newer &rarr;</a></li>
+    {% endif %}
+    
+</ul>
+{% endblock %}
+

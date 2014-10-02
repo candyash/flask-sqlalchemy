@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<ul class="user-list">
+
+       
+<div class="user-header">
+
+ <ul class='user-list'> 
+{% for p in friends %}
+    {% if current_user.is_authenticated() %}
+
+    
+    <li class="user">
+        
+        <div class="user-avatar"><img src="{{current_user.avatar(64)}}"></div>
+        <a class="btn btn-primary pull-right" name='unfriend' data-id="{{p.id}}"  href="{{url_for('fast.unFriend',id=p.id)}}">Unfriend</a>
+       
+
+   <p>
+       Name: {% if p.firstName %}{{ p.firstName }}{% endif %}{% if p.lastName %} {{ p.lastName }}<br>{% endif %}
+       Age: {% if p.Age %}{{ p.Age}}<br>{% endif %}
+       Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
+      {% if p.bio %}{{ p.bio }}{% endif %}
+   </p>
+    </li>
+    {% endif %}
+{% endfor %} 
+
+
+</ul>
+
+
+   
+
+</div>
+{% endblock %}
+
+
+
+
+
+       
+        
+
+
+
+
+
