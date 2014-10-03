@@ -20,7 +20,7 @@ login_manager.login_view = 'fast.login'
 
 
 def create_app(config_name):
-    app = Flask(app)
+    app = Flask(__name__)
     app.config.from_object(config[config_name])
     
     
