@@ -3,19 +3,17 @@ from migrate.versioning import api
 from config import ProductionConfig
 from flask import Flask
 from app.models import User
+from app import db
 import os.path
 from migrate.exceptions import DatabaseAlreadyControlledError
-
-
-
-def initialize_database():
-    try:
-    
-        db.create_all()
-        db.session.add(User("candy", "candy@gmail.com", "123"))
-        db.session.commit()
-    except:
-        flash ("database missing!!")
+try:
+    db.create_all()
+    user = User(email="candy@gmail.com", username="candy", password="test",
+                is_admin=False)
+    db.session.add(user)
+    db.session.commit()
+except:
+    flash("database missing!")
 
 try:
     

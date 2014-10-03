@@ -8,12 +8,11 @@ from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
 
 @fast.route('/')
 def index():
-    try:
-        page=request.args.get('page', 1, type=int)
-        pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
-        user_list=pagination.items
-    except:
-        flash("Data not found!")
+  
+    page=request.args.get('page', 1, type=int)
+    pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
+    user_list=pagination.items
+   
     return render_template('fast/index.html',pagination=pagination, user_list=user_list)
 
 
