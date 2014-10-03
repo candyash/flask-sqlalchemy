@@ -4,6 +4,7 @@ from config import ProductionConfig
 from flask import Flask
 from app.models import User
 import os.path
+from migrate.exceptions import DatabaseAlreadyControlledError
 
 
 
