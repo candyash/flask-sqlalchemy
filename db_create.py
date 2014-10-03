@@ -24,7 +24,7 @@ try:
         api.version_control(ProductionConfig.SQLALCHEMY_DATABASE_URI,ProductionConfig.SQLALCHEMY_MIGRATE_REPO)
     else:
         api.version_control(ProductionConfig.SQLALCHEMY_DATABASE_URI, ProductionConfig.SQLALCHEMY_MIGRATE_REPO,
-                            api.version(SQLALCHEMY_MIGRATE_REPO))
+                            api.version(ProductionConfig.SQLALCHEMY_MIGRATE_REPO))
 
 except DatabaseAlreadyControlledError:
             raise Exception('Database already initialized')
