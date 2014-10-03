@@ -55,14 +55,17 @@ def profile():
     form =ProfileForm()
     profileInfo=PersonalInfo(users=current_user)
     if form.validate_on_submit():
+        try:
         
-        current_user.user_info.firstName=form.firstName.data
-        current_user.user_info.lastName=form.lastName.data
-        current_user.user_info.Age=form.Age.data
-        current_user.user_info.location=form.location.data
-        current_user.user_info.bio=form.bio.data
-        db.session.add(current_user.user_info)
-        db.session.commit()
+            current_user.user_info.firstName=form.firstName.data
+            current_user.user_info.lastName=form.lastName.data
+            current_user.user_info.Age=form.Age.data
+            current_user.user_info.location=form.location.data
+            current_user.user_info.bio=form.bio.data
+            db.session.add(current_user.user_info)
+            db.session.commit()
+        except sqlite3.OperationalError:
+            flash("database missing!!")
 
         return redirect(url_for('fast.user', username=current_user.username))
     if current_user.is_authenticated():
@@ -94,24 +97,27 @@ def friendadd():
     id=request.args.get('id', type=int)
     user=User.query.get_or_404(id)
     q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).first()
-    if q is None:
-        f=Friend(friends=current_user)
-        if current_user.is_authenticated():
-            f.user_account=current_user.id
-            f.friend_Account=user.id
-            f.status=True
-            db.session.add(f)
-            db.session.commit()
-            flash('Thank you! You sent friend request for {0}'.format(user.username))
-                        
-
-      
-    else:
-        flash('Remember you sent friend request for {0}'.format(user.username))
-    q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).filter(Friend.status==1).first()
-    flash('{0}'.format(q))
-
-
+    
+    try:
+    
+        if q is None:
+            f=Friend(friends=current_user)
+            if current_user.is_authenticated():
+                f.user_account=current_user.id
+                f.friend_Account=user.id
+                f.status=True
+                db.session.add(f)
+                db.session.commit()
+                flash('Thank you! You sent friend request for {0}'.format(user.username))
+                            
+    
+          
+        else:
+            flash('Remember you sent friend request for {0}'.format(user.username))
+        q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).filter(Friend.status==1).first()
+        flash('{0}'.format(q))
+    except sqlite3.OperationalError:
+        flash("database missing!!")
 
     return render_template('fast/userlist.html',q=q) 
 
@@ -131,23 +137,30 @@ def friendrequest():
 @fast.route('/confirm/<int:id>', methods=['GET','PUT'])
 def confirm(id):
     account=Friend.query.get_or_404(id)
-    if account.approved:
-        return flash('your friendship confirmed')
-    account.approved=True
-    db.session.add(account)
-    db.session.commit()
-    flash('Thank you accepting the friend request!')
+    
+    try:
+        if account.approved:
+            return flash('your friendship confirmed')
+        account.approved=True
+        db.session.add(account)
+        db.session.commit()
+        flash('Thank you accepting the friend request!')
+    except sqlite3.OperationalError:
+        flash("database missing!!")
     return redirect(url_for('fast.friendrequest'))
 @fast.route('/delete/<int:id>', methods=['GET','DELETE'])
 def delete(id):
     account=Friend.query.get_or_404(id)
-    if account.approved:
-        flash('The account is Deleted!!!')
-        return redirect(url_for('fast.index'))
-    account.approved=False
-    db.session.delete(account)
-    db.session.commit()
-    flash('YOU REJECT THE FRIENDSHIP REQUEST!')
+    try:
+        if account.approved:
+            flash('The account is Deleted!!!')
+            return redirect(url_for('fast.index'))
+        account.approved=False
+        db.session.delete(account)
+        db.session.commit()
+        flash('YOU REJECT THE FRIENDSHIP REQUEST!')
+    except sqlite3.OperationalError:
+        flash("database missing \n")
     return redirect(url_for('fast.friendrequest'))
 @fast.route('/acceptedFriend')
 def acceptedFriend():
@@ -173,12 +186,16 @@ def bestFriend():
     d=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).first()
     faccount=Friend.query.join(Friend.bestFriend).filter(BestFriend.best_friend==True).filter(Friend.user_account==current_user.id).filter(Friend.friend_Account==user.id).first()
     if faccount is None:
-         f=BestFriend(best_friend=True, friend_id=d.id)
-         db.session.add(f)
-         db.session.commit()
-         flash('Now you are best friend with him/her')
+        try:
+            
+            f=BestFriend(best_friend=True, friend_id=d.id)
+            db.session.add(f)
+            db.session.commit()
+            flash('Now you are best friend with him/her')
+        except sqlite3.OperationalError:
+            flash("database missing!! \n")
          
-         return redirect(url_for('fast.index'))
+        return redirect(url_for('fast.index'))
    
     else:
         flash('Sorry! you already have one best friend')
@@ -188,13 +205,15 @@ def bestFriend():
 def unFriend():
     id=request.args.get('id', type=int)
     account=User.query.get_or_404(id)
-   
-    faccount=Friend.query.filter(Friend.friend_Account==account.id).filter(Friend.user_account==current_user.id).first()
-    fbest=BestFriend.query.filter(BestFriend.friend_id==faccount)
-    
-    db.session.delete(faccount)
-    db.session.commit()
-    flash('You are Unfriend!')
+    try:
+        faccount=Friend.query.filter(Friend.friend_Account==account.id).filter(Friend.user_account==current_user.id).first()
+        fbest=BestFriend.query.filter(BestFriend.friend_id==faccount)
+        
+        db.session.delete(faccount)
+        db.session.commit()
+        flash('You are Unfriend!')
+    except Sqlite.OperationalError:
+        flash("database missing!! \n")
     return redirect(url_for('fast.acceptedFriend'))
     
       
