@@ -5,12 +5,7 @@ from app import db
 from flask import Flask
 import os.path
 
-app = Flask(__name__)
-
-with app.app_context():
-   
-    db.create_all()
-
+db.create_all()
 
 if not os.path.exists(ProductionConfig.SQLALCHEMY_MIGRATE_REPO ):
     api.create(ProductionConfig.SQLALCHEMY_MIGRATE_REPO, 'database_repository')
