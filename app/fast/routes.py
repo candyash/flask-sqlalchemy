@@ -16,14 +16,18 @@ def index():
 
 @fast.route('/user/<username>')
 def user(username):
-    user=User.query.filter_by(username=username).first_or_404()
-    personal=PersonalInfo.query.filter_by(user_id=user.id).first()
-    
-   
-    if personal is None:
+    try:
         
-        flash('Please update your profile')
-        return redirect(url_for('fast.profile'))
+        user=User.query.filter_by(username=username).first_or_404()
+        personal=PersonalInfo.query.filter_by(user_id=user.id).first()
+        
+       
+        if personal is None:
+            
+            flash('Please update your profile')
+            return redirect(url_for('fast.profile'))
+    except:
+        flash("Error found!")
         
   
     
