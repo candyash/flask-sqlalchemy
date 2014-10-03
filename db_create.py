@@ -2,6 +2,7 @@
 from migrate.versioning import api
 from config import ProductionConfig
 from app import db
+from flask import Flask
 import os.path
 
 app = Flask(__name__)
