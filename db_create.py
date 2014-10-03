@@ -8,10 +8,13 @@ import os.path
 
 
 def initialize_database():
+    try:
     
-    db.create_all()
-    db.session.add(User("candy", "candy@gmail.com", "123"))
-    db.session.commit()
+        db.create_all()
+        db.session.add(User("candy", "candy@gmail.com", "123"))
+        db.session.commit()
+    except:
+        flash ("database missing!!")
 
 
 if not os.path.exists(ProductionConfig.SQLALCHEMY_MIGRATE_REPO ):
