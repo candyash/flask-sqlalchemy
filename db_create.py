@@ -4,8 +4,10 @@ from config import ProductionConfig
 from app import db
 import os.path
 
-@app.before_first_request
-def initialize_database():
+app = Flask(__name__)
+
+with app.app_context():
+   
     db.create_all()
 
 
