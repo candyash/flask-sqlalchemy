@@ -6,14 +6,12 @@ from app.models import User
 from app import db
 import os.path
 from migrate.exceptions import DatabaseAlreadyControlledError
-try:
-    db.create_all()
-    user = User(email="candy@gmail.com", username="candy", password="test",
+db.create_all()
+user = User(email="candy@gmail.com", username="candy", password="test",
                 is_admin=False)
-    db.session.add(user)
-    db.session.commit()
-except:
-    flash("database missing!")
+db.session.add(user)
+db.session.commit()
+
 
 try:
     

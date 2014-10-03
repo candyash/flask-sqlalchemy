@@ -30,6 +30,7 @@ class ProductionConfig(Config):
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
         SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
         SQLALCHEMY_RECORD_QUERIES = True
+      
     
 class HerokuConfig(ProductionConfig):
     def init_app(cls,app):
@@ -48,4 +49,5 @@ config = {
 
     'default': DevelopmentConfig
 }
+
 

@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 import os
+from flask.ext.migrate import Migrate, MigrateCommand
+from app import create_app
+from flask.ext.script import Manager
+from app import db
+from app.models import User
+
 if os.path.exists('.env'):
     print('Importing environment from .env...')
     for line in open('.env'):
@@ -7,14 +13,12 @@ if os.path.exists('.env'):
         if len(var) == 2:
             os.environ[var[0]] = var[1]
 
-from app import create_app
-from flask.ext.script import Manager
-from app import db
-from app.models import User
+
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+magrate=Migrate(app,db)
 manager = Manager(app)
-
+manager.add_command('db',MigrateCommand)
 
 @manager.command
 def test():
