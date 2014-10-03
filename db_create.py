@@ -4,9 +4,9 @@ from config import ProductionConfig
 from flask import Flask
 from app.models import User
 import os.path
-import app
 
-@app.before_first_request
+
+
 def initialize_database():
     
     db.create_all()

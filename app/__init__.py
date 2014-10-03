@@ -24,6 +24,9 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     
     
+
+    
+    
     
     if not app.debug and os.environ.get('HEROKU') is None:
         import logging
@@ -44,8 +47,7 @@ def create_app(config_name):
 
     bootstrap.init_app(app)
     db.init_app(app)
-    with app.app_context():
-        db.create_all()
+  
     moment.init_app(app)
     pagedown.init_app(app)
     login_manager.init_app(app)
