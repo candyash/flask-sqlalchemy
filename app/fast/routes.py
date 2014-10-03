@@ -34,15 +34,17 @@ def Register():
     """Register a new user."""
     form=RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
-        
-        email=form.email.data
-        username=form.username.data
-        password=form.password.data
-        user=User(email=email,username=username,password=password)
-        personal=PersonalInfo()
-        db.session.add(user)
-        db.session.commit()
-        flash('User {0} was registered successfully.'.format(username))
+        try:
+            email=form.email.data
+            username=form.username.data
+            password=form.password.data
+            user=User(email=email,username=username,password=password)
+            personal=PersonalInfo()
+            db.session.add(user)
+            db.session.commit()
+            flash('User {0} was registered successfully.'.format(username))
+        except sqlite3.OperationalError:
+            flash ("you don't have database")
         return redirect(url_for('fastlog.login'))
     return render_template('fast/Register.html',form=form)
 
