@@ -6,22 +6,14 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     USER_PER_PAGE = 10
-    if os.environ.get('DATABASE_URL') is None:
-        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL'] or \
-        'postgresql:///ashnet/datadev'
-    else:
-        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-        SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-        SQLALCHEMY_RECORD_QUERIES = True
-    print SQLALCHEMY_DATABASE_URI
-
+   
     
 class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or 't0p s3cr3t'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL'] or \
         'postgresql:///ashnet/datadev'
-    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+   
 
 class TestingConfig(Config):
     TESTING = True
@@ -37,7 +29,7 @@ class ProductionConfig(Config):
         'postgresql:///datadev'
     else:
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-        SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+    
         SQLALCHEMY_RECORD_QUERIES = True
       
     

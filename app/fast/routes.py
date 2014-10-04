@@ -8,28 +8,37 @@ from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
 
 @fast.route('/')
 def index():
-  
-   
-    page=request.args.get('page', 1, type=int)
-    pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
-    user_list=pagination.items
-   
+    pagination=[]
+    user_list=[]
+    try:
+        page=request.args.get('page', 1, type=int)
+        pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
+        user_list=pagination.items
+    except:
+        flash("There is no data!")
    
     return render_template('fast/index.html',pagination=pagination, user_list=user_list)
 
 
 @fast.route('/user/<username>')
 def user(username):
-
+    user=[]
+    personal=[]
+    try:
         
-    user=User.query.filter_by(username=username).first_or_404()
-    personal=PersonalInfo.query.filter_by(user_id=user.id).first()
+        user=User.query.filter_by(username=username).first_or_404()
+        personal=PersonalInfo.query.filter_by(user_id=user.id).first()
         
        
-    if personal is None:
-        flash('Please update your profile')
-        return redirect(url_for('fast.profile'))
-
+        if personal is None:
+            
+            flash('Please update your profile')
+            return redirect(url_for('fast.profile'))
+    except:
+        flash("Error found!")
+        
+  
+    
     return render_template('fast/user.html', user=user,personal=personal)
 
 @fast.route('/Register', methods=['GET','POST'])
