@@ -7,7 +7,11 @@ from flask.ext.pagedown import PageDown
 from flask.ext.mail import Mail
 from config import config
 import os
+import sys
 from config import basedir
+import logging
+from logging.handlers import RotatingFileHandler
+import psycopg2
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
@@ -18,19 +22,23 @@ mail = Mail()
 login_manager = LoginManager()
 login_manager.login_view = 'fast.login'
 
+	
+
+
+
+
 
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     
+   
+   
+        
     
 
     
-    
-    
     if not app.debug and os.environ.get('HEROKU') is None:
-        import logging
-        from logging.handlers import RotatingFileHandler
         file_handler = RotatingFileHandler('tmp/fastmonkey.log', 'a',1 * 1024 * 1024, 10)
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
