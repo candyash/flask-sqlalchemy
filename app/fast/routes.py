@@ -22,6 +22,8 @@ def index():
 
 @fast.route('/user/<username>')
 def user(username):
+    user=[]
+    personal=[]
     try:
         
         user=User.query.filter_by(username=username).first_or_404()
