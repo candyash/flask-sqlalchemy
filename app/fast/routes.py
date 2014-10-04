@@ -8,10 +8,14 @@ from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
 
 @fast.route('/')
 def index():
-  
-    page=request.args.get('page', 1, type=int)
-    pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
-    user_list=pagination.items
+    pagination=[]
+    user_list=[]
+    try:
+        page=request.args.get('page', 1, type=int)
+        pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
+        user_list=pagination.items
+    except:
+        flash("There is no data!")
    
     return render_template('fast/index.html',pagination=pagination, user_list=user_list)
 
@@ -49,7 +53,7 @@ def Register():
             db.session.add(user)
             db.session.commit()
             flash('User {0} was registered successfully.'.format(username))
-        except sqlite3.OperationalError:
+        except:
             flash ("you don't have database")
         return redirect(url_for('fastlog.login'))
     return render_template('fast/Register.html',form=form)

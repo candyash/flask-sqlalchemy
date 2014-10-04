@@ -6,13 +6,15 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     USER_PER_PAGE = 10
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    #print SQLALCHEMY_DATABASE_URI
 
     
 class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or 't0p s3cr3t'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'data-dev.db')
     SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 class TestingConfig(Config):
