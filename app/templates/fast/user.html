@@ -6,8 +6,8 @@
     {% if current_user == user %}<a class="btn btn-default pull-right" href="{{ url_for('fast.profile') }}">Edit Profile</a>{% endif %}
     <h1>{{ user.username }}</h1>
     <p>
-       Name: {% if personal.firstName %}{{ personal.firstName }}{% endif %}{% if personal.lastName %} {{ personal.lastName }}<br>{% endif %}
-       Age: {% if personal.Age %}{{ personal.Age}}<br>{% endif %}
+       Name: {% if personal.first_name %}{{ personal.first_name }}{% endif %}{% if personal.last_name %} {{ personal.last_name }}<br>{% endif %}
+       Age: {% if personal.age %}{{ personal.age}}<br>{% endif %}
        Address: {% if personal.location %}<a href="http://maps.google.com?q={{ personal.location }}">{{ personal.location }}</a><br>{% endif %}
     </p>
     {% if personal.bio %}<p>{{ personal.bio }}</p>{% endif %}

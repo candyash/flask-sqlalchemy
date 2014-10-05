@@ -7,8 +7,8 @@
 <div class="user-header">
 
  <ul class='user-list'>
-<h1>Monkey List</h1>
-{% for p in userlist %}
+<h1>Add Monkey </h1>
+{% for p in add_friend %}
  
     
     <li class="user">
@@ -18,8 +18,8 @@
     {% endif %}
   
    <p>
-       Name: {% if p.first_name %}{{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}<br>{% endif %}
-       Age: {% if p.age %}{{ p.age}}<br>{% endif %}
+       Name: {% if p.firstName %}{{ p.firstName }}{% endif %}{% if p.lastName %} {{ p.lastName }}<br>{% endif %}
+       Age: {% if p.Age %}{{ p.Age}}<br>{% endif %}
        Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
     </p>
     {% if p.bio %}<p>{{ p.bio }}</p>{% endif %}
@@ -43,6 +43,7 @@
 
        
         
+
 
 
 

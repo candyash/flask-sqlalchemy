@@ -5,19 +5,34 @@ from ..import db
 from ..models import User, PersonalInfo, Friend,BestFriend
 from . import fast
 from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
+#from connection import conn
+from sqlalchemy import create_engine, MetaData,Table
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine('postgresql://ashnet:Uno12mazurca@localhost/datadev', echo=True)
+metadata = MetaData(bind=engine)
+users = Table('users', metadata, autoload=True)
+user_info= Table('user_info', metadata, autoload=True)
+con = engine.connect()
+
+
+
+
 
 @fast.route('/')
 def index():
+    
     pagination=[]
-    user_list=[]
-    try:
-        page=request.args.get('page', 1, type=int)
-        pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
-        user_list=pagination.items
-    except:
-        flash("There is no data!")
+    user_list= []
+    page=request.args.get('page', 1, type=int)
+       # pagination=PersonalInfo.query.join(User.user_info).join(User.friend).order_by(Friend.timestamp.asc()).paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
+    user_list= con.execute('select * from user_info' )
+    #user_list=pagination.items
    
-    return render_template('fast/index.html',pagination=pagination, user_list=user_list)
+    
+    
+   
+    return render_template('fast/index.html',pagination=pagination,user_list=user_list)
 
 
 @fast.route('/user/<username>')
@@ -69,23 +84,23 @@ def profile():
     if form.validate_on_submit():
         try:
         
-            current_user.user_info.firstName=form.firstName.data
-            current_user.user_info.lastName=form.lastName.data
-            current_user.user_info.Age=form.Age.data
+            current_user.user_info.first_name=form.firstName.data
+            current_user.user_info.last_name=form.lastName.data
+            current_user.user_info.age=form.Age.data
             current_user.user_info.location=form.location.data
             current_user.user_info.bio=form.bio.data
             db.session.add(current_user.user_info)
             db.session.commit()
-        except sqlite3.OperationalError:
+        except:
             flash("database missing!!")
 
         return redirect(url_for('fast.user', username=current_user.username))
     if current_user.is_authenticated():
         p=current_user.user_info.query.filter_by(user_id=current_user.id)
         for j in p:
-            form.firstName.data=j.firstName
-            form.lastName.data=j.lastName
-            form.Age.data=j.Age
+            form.firstName.data=j.first_name
+            form.lastName.data=j.last_name
+            form.Age.data=j.age
             form.location.data=j.location
             form.bio.data=j.bio
     
@@ -99,39 +114,41 @@ def userlist():
         flash('Please update your profile to see more Monkeys!')
         return redirect(url_for('fast.profile'))
     
-    userlist=PersonalInfo.query.join(User.user_info).join(User.friend).filter(Friend.status==False).filter(User.id!=current_user.id)
-    
+    #userlist=PersonalInfo.query.join(User.user_info).join(User.friend).filter(Friend.status==False).filter(User.id!=current_user.id)
+    userlist= con.execute('select * from user_info' )
 
     return render_template('fast/userlist.html',userlist=userlist )
 
 @fast.route('/friendadd', methods=['GET','POST'])
 def friendadd():
-    id=request.args.get('id', type=int)
-    user=User.query.get_or_404(id)
-    q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).first()
+    id_friend=request.args.get('id', type=int)
     
+    #q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).first()
+    
+    #q= con.execute('select id from friends where id=user.id')
     try:
-    
-        if q is None:
-            f=Friend(friends=current_user)
-            if current_user.is_authenticated():
-                f.user_account=current_user.id
-                f.friend_Account=user.id
-                f.status=True
-                db.session.add(f)
-                db.session.commit()
-                flash('Thank you! You sent friend request for {0}'.format(user.username))
+        
+       
+        current_user.friends.user_account=1
+        current_user.friends.friend_account=2
+        current_user.friends.user_id=1
+        current_user.friends.approved=False
+        current_user.friends.status=True
+        db.session.add(current_user.friends)
+        db.session.commit()
+        #flash('Thank you! You sent friend request for {0}'.format(user.username))
                             
-    
           
-        else:
-            flash('Remember you sent friend request for {0}'.format(user.username))
-        q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).filter(Friend.status==1).first()
-        flash('{0}'.format(q))
-    except sqlite3.OperationalError:
+     
+        #flash('Remember you sent friend request for {0}'.format(user.username))
+        #q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).filter(Friend.status==1).first()
+     
+    except :
         flash("database missing!!")
+    add_friend=con.execute('select user_info.user_id, user_info.first_name, user_info.last_name, user_info.age FROM user_info \
+                           JOIN friends ON user_info.user_id=friends.user_id ')
 
-    return render_template('fast/userlist.html',q=q) 
+    return render_template('fast/friend_add.html',add_friend=add_friend) 
 
 @fast.route('/friendrequest')
 @login_required
