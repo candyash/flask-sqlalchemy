@@ -9,10 +9,10 @@ from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
 from sqlalchemy import create_engine, MetaData,Table
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('postgresql:///datadev', echo=True)
+engine = create_engine('postgresql://ashnet:Uno12mazurca@localhost/datadev', echo=True)
 metadata = MetaData(bind=engine)
-#users = Table('users', metadata, autoload=True)
-#user_info= Table('user_info', metadata, autoload=True)
+users = Table('users', metadata, autoload=True)
+user_info= Table('user_info', metadata, autoload=True)
 con = engine.connect()
 
 
