@@ -10,7 +10,7 @@ class Config:
         SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev')
     else:
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-        SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+   
         SQLALCHEMY_RECORD_QUERIES = True
     print SQLALCHEMY_DATABASE_URI
 
@@ -18,9 +18,14 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or 't0p s3cr3t'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev') 
+    if os.environ.get('DATABASE_URL') is None:
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev')
+    else:
+        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+        SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+        SQLALCHEMY_RECORD_QUERIES = True
        
-    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+ 
 
 class TestingConfig(Config):
     TESTING = True
@@ -31,12 +36,12 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 't0p s3cr3t'
     if os.environ.get('DATABASE_URL') is None:
         SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev') 
        
     else:
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-        SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
         SQLALCHEMY_RECORD_QUERIES = True
       
     
