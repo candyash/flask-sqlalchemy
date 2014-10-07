@@ -25,9 +25,8 @@ manager = Manager(app)
 manager.add_command('db',MigrateCommand)
 
 @manager.command
-def initdb():
-    db.drop_all()
-    db.create_all()
+def init_db():
+    metadata.create_all(bind=engine)
 
 
 

@@ -7,7 +7,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     USER_PER_PAGE = 10
     if os.environ.get('DATABASE_URL') is None:
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev')
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql+psycopg2://ashnet:Uno12mazurca@localhost/datadev')
     else:
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
    
@@ -19,7 +19,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or 't0p s3cr3t'
     if os.environ.get('DATABASE_URL') is None:
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev')
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql+psycopg2://ashnet:Uno12mazurca@localhost/datadev')
     else:
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
         SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
@@ -38,7 +38,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 't0p s3cr3t'
     if os.environ.get('DATABASE_URL') is None:
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://ashnet:Uno12mazurca@localhost/datadev') 
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql+psycopg2://ashnet:Uno12mazurca@localhost/datadev') 
        
     else:
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']

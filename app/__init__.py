@@ -23,20 +23,9 @@ login_manager = LoginManager()
 login_manager.login_view = 'fast.login'
 
 	
-
-
-
-
-
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
-    
-   
-   
-        
-    
-
     
     if not app.debug and os.environ.get('HEROKU') is None:
         file_handler = RotatingFileHandler('tmp/fastmonkey.log', 'a',1 * 1024 * 1024, 10)

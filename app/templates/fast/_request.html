@@ -1,14 +1,15 @@
-{% if not friend.approved %}
-            <div id="moderate-{{ friend.id }}" class="pull-right">
-                <a class="btn btn-primary api-approve" data-id="{{ friend.id }}" href="{{url_for('fast.confirm',id=friend.id)}}"><span class="glyphicon glyphicon-ok"></span> Confirm</a>
-                <a class="btn btn-danger api-delete" data-id="{{ friend.id }}" href="{{url_for('fast.delete',id=friend.id)}}"><span class="glyphicon glyphicon-trash"></span> Not Now</a>
-            </div>
-            <div id="approved-{{ friend.id }}" class="pull-right" style="display: none;">
-                <span class="glyphicon glyphicon-ok"></span> <b>Approved</b>
-            </div>
-            <div id="deleted-{{ friend.id }}" class="pull-right" style="display: none;">
-                <span class="glyphicon glyphicon-trash"></span> <b>Deleted</b>
-            </div>
-{% endif %}
+
+
+<div id="moderate-{{ p.user_id }}" class="pull-right">
+            <a class="btn btn-primary api-approve" data-id="{{ p.user_id }}" href="{{url_for('fast.confirm',id=p.user_id)}}"><span class="glyphicon glyphicon-ok"></span> Confirm</a>
+            <a class="btn btn-danger api-delete" data-id="{{ p.user_id }}" href="{{url_for('fast.delete',id=p.user_id)}}"><span class="glyphicon glyphicon-trash"></span> Not Now</a>
+</div>
+<div id="approved-{{ p.user_id }}" class="pull-right" style="display: none;">
+            <span class="glyphicon glyphicon-ok"></span> <b>Approved</b>
+</div>
+<div id="deleted-{{ p.user_id }}" class="pull-right" style="display: none;">
+            <span class="glyphicon glyphicon-trash"></span> <b>Deleted</b>
+</div>
+
     
     

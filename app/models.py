@@ -9,11 +9,17 @@ from flask.ext.login import UserMixin
 from . import db, login_manager
 from hashlib import md5
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import mapper
+
+
+
 Base = declarative_base()
 
 
 class User(UserMixin, db.Model,Base):
     __tablename__ = 'users'
+
+    
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64),
                       nullable=False, unique=True, index=True)
@@ -44,6 +50,13 @@ class User(UserMixin, db.Model,Base):
         return
     def friend_status(self, fid):
         return Friend.friendStatus(self.id,fid)
+    
+    def __init__(self, username=None, email=None):
+        self.username = username
+        self.email = email
+
+    def __repr__(self):
+        return '<User %r>' % (self.username)
     
     
         
@@ -78,7 +91,7 @@ class PersonalInfo(db.Model, Base):
     
 class Friend(db.Model, Base):
     __tablename__ = 'friends'
-    id=db.Column(db.Integer, primary_key=True )
+    id=db.Column(db.Integer,primary_key=True )
     user_account=db.Column(db.Integer)
     friend_account=db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -98,7 +111,7 @@ class Friend(db.Model, Base):
     
 class BestFriend(db.Model, Base):
     __tablename__ = 'bestfriend'
-    id=db.Column(db.Integer, primary_key=True )
+    id=db.Column(db.Integer,primary_key=True )
     best_friend=db.Column(db.Boolean, default=False)
     friend_id=db.Column(db.Integer, db.ForeignKey('friends.id'))
     
