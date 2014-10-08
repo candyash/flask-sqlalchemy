@@ -20,11 +20,7 @@ def index(page):
     .paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
    
     user_list=pagination
-    
-   
-   
-    
-   
+
     return render_template('fast/index.html',user_list=user_list)
 
 
@@ -58,10 +54,12 @@ def Register():
             email=form.email.data
             username=form.username.data
             password=form.password.data
-            user=User(email=email,username=username,password=password)
-            personal=PersonalInfo()
-            db.session.add(user)
-            db.session.commit()
+            #user=User(email=email,username=username,password=password)
+            sql='INSERT IN TO users (email, username, password,is_admin)VALUES(%s,%s,%s,%)'
+            con.execute(sql%(email,username,password,False))
+           
+            #db.session.add(user)
+            #db.session.commit()
             flash('User {0} was registered successfully.'.format(username))
         except:
             flash ("you don't have database")
