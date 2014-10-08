@@ -19,7 +19,6 @@ Base = declarative_base()
 class User(UserMixin, db.Model,Base):
     __tablename__ = 'users'
 
-    
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64),
                       nullable=False, unique=True, index=True)
@@ -29,6 +28,18 @@ class User(UserMixin, db.Model,Base):
     password_hash = db.Column(db.String(128))
     user_info=db.relationship('PersonalInfo' ,uselist=False,backref='users')
     friends=db.relationship('Friend', lazy='dynamic', backref='friends')
+    
+    def __init__(self, email, username, is_admin, password_hash):
+        self.email=email
+        self.username=username
+        self.is_admin=is_admin
+      
+    def __repr__(self):
+        return '<username {}'.format(self.username)
+    
+    
+    
+    
     
     def for_approval(self, admin=False):
         if admin :
@@ -74,6 +85,16 @@ class PersonalInfo(db.Model, Base):
     bio = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    def __init__(self, first_name, last_name, age, location, bio, member_since):
+        self.first_name=frist_name
+        self.last_name=last_name
+        self.age=age
+        self.location=location
+        self.bio=bio
+        self.member_since=member_since
+    def __repr__(self):
+        return '<username {}'.format(self.first_name)
    
      
     
@@ -88,6 +109,13 @@ class Friend(db.Model, Base):
     status=db.Column(db.Boolean, default=False)
     bestFriend=db.relationship('BestFriend' ,uselist=False, lazy='joined', backref='bestfriend', cascade="all, delete, delete-orphan")
     
+    def __init__(self, user_account, friend_account, timestamp, user_id, approved, status):
+        self.user_account=user_account
+        self.friend_account=friend_account
+        self.timestamp=timestamp
+        self.user_id=user_id
+        self.approved=approved
+        self.status=status
     
     @staticmethod
     def for_approval(userId):
@@ -102,6 +130,10 @@ class BestFriend(db.Model, Base):
     id=db.Column(db.Integer,primary_key=True )
     best_friend=db.Column(db.Boolean, default=False)
     friend_id=db.Column(db.Integer, db.ForeignKey('friends.id'))
+    
+    def __init__(self, best_friend, friend_id):
+        self.best_friend=best_friend
+        self.friend_id=friend_id
     
     
     
