@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import request, current_app
 from flask.ext.login import UserMixin
-from . import db, login_manager
+from . import db
 from hashlib import md5
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper
@@ -62,9 +62,7 @@ class User(UserMixin, db.Model,Base):
         return check_password_hash(self.password_hash,password)
     def avatar(self, size):
         return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() + '?d=mm&s=' + str(size)
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+
   
 class PersonalInfo(db.Model, Base):
     __tablename__= 'user_info'

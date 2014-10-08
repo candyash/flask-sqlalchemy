@@ -12,6 +12,7 @@ from config import basedir
 import logging
 from logging.handlers import RotatingFileHandler
 import psycopg2
+from flask.ext.bcrypt import Bcrypt
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
