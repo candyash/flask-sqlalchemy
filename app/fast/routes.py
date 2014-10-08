@@ -18,10 +18,18 @@ def index(page):
     page=request.args.get('page', 1, type=int)
     pagination=PersonalInfo.query.order_by(PersonalInfo.member_since.asc())\
     .paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
-   
+    #if current_user.is_authenticated():
+      # user_list= con.execute('select * from user_info where id!=%d'%current_user.id )
+      # return render_template('fast/index.html',pagination=pagination,user_list=user_list)
+    #user_list= con.execute('select * from user_info')
+    #pagination=Pagination(userlist,page, per_page=current_app.config['USER_PER_PAGE'],error_out=False) 
     user_list=pagination
-
-    return render_template('fast/index.html',user_list=user_list)
+    
+   
+   
+    
+   
+    return render_template('fast/index.html',pagination=pagination,user_list=user_list)
 
 
 @fast.route('/user/<username>')
@@ -54,12 +62,10 @@ def Register():
             email=form.email.data
             username=form.username.data
             password=form.password.data
-            #user=User(email=email,username=username,password=password)
-            sql='INSERT IN TO users (email, username, password,is_admin)VALUES(%s,%s,%s,%)'
-            con.execute(sql%(email,username,password,False))
-           
-            #db.session.add(user)
-            #db.session.commit()
+            user=User(email=email,username=username,password=password)
+            personal=PersonalInfo()
+            db.session.add(user)
+            db.session.commit()
             flash('User {0} was registered successfully.'.format(username))
         except:
             flash ("you don't have database")

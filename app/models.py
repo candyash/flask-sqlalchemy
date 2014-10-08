@@ -51,17 +51,7 @@ class User(UserMixin, db.Model,Base):
     def friend_status(self, fid):
         return Friend.friendStatus(self.id,fid)
     
-    def __init__(self, username=None, email=None):
-        self.username = username
-        self.email = email
-
-    def __repr__(self):
-        return '<User %r>' % (self.username)
-    
-    
-        
  
-    
     @property
     def password(self):
         raise AttributeError('password is not a readable')
