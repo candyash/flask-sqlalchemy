@@ -57,16 +57,19 @@ def Register():
     """Register a new user."""
     form=RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
-       
-        email=form.email.data
-        username=form.username.data
-        password=form.password.data
-        user=User(email=email,username=username,is_admin=False,password=password)
-        db.session.add(user)
-        db.session.commit()
-        flash('User {0} was registered successfully.'.format(username))
-      
-        return redirect(url_for('fastlog.login'))
+        
+        try:
+            email=form.email.data
+            username=form.username.data
+            password=form.password.data
+            user=User(email=email,username=username,is_admin=False,password=password)
+            db.session.add(user)
+            db.session.commit()
+            flash('User {0} was registered successfully.'.format(username))
+        
+            return redirect(url_for('fastlog.login'))
+        except:
+            flash('Error is found. The user already registerd to the system!')
     return render_template('fast/Register.html',form=form)
 
 @fast.route('/profile', methods=['GET','POST'])
