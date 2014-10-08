@@ -13,16 +13,19 @@ from app.connection import con
 @fast.route('/', defaults={'page': 1})
 @fast.route('/<int:page>')
 def index(page):
+    try:
     
-    page=request.args.get('page', 1, type=int)
-    pagination=PersonalInfo.query.order_by(PersonalInfo.member_since.asc())\
-    .paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
-    #if current_user.is_authenticated():
-      # user_list= con.execute('select * from user_info where id!=%d'%current_user.id )
-      # return render_template('fast/index.html',pagination=pagination,user_list=user_list)
-    #user_list= con.execute('select * from user_info')
-    #pagination=Pagination(userlist,page, per_page=current_app.config['USER_PER_PAGE'],error_out=False) 
-    user_list=pagination
+        page=request.args.get('page', 1, type=int)
+        pagination=PersonalInfo.query.order_by(PersonalInfo.member_since.asc())\
+        .paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
+        #if current_user.is_authenticated():
+          # user_list= con.execute('select * from user_info where id!=%d'%current_user.id )
+          # return render_template('fast/index.html',pagination=pagination,user_list=user_list)
+        #user_list= con.execute('select * from user_info')
+        #pagination=Pagination(userlist,page, per_page=current_app.config['USER_PER_PAGE'],error_out=False) 
+        user_list=pagination
+    except:
+        flash('data not found')
     
    
    
