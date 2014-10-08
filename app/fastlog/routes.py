@@ -38,7 +38,7 @@ def logout():
     return redirect(url_for('fastlog.login'))
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect('/login')
+    return redirect('fastlog.login')
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
