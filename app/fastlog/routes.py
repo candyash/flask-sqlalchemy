@@ -4,6 +4,9 @@ from flask.ext.login import login_user, logout_user, login_required
 from ..models import User
 from . import fastlog
 from .forms import LoginForm
+from app.connection import con
+from .. import db
+
 
 
 @fastlog.route('/login', methods=['GET', 'POST'])
@@ -18,7 +21,12 @@ def login():
     form = LoginForm()
         
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        email=form.email.data
+      
+        user = db.session.query(User).filter_by(email=form.email.data).first()
+        #sql='select * from users where email=%s'
+        #user=con.execute(sql%(email)).first()
+        #user=User(password=user.passward_hash)
         if user is None or not user.verify_password(form.password.data):
             flash('Invalid email or password.')
             return redirect(url_for('.login'))

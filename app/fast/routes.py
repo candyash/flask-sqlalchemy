@@ -4,13 +4,12 @@ from ..import db
 from ..models import User, PersonalInfo, Friend,BestFriend
 from . import fast
 from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
-from sqlalchemy import create_engine, MetaData,Table, select
 from sqlalchemy.orm import sessionmaker
 from config import Config
 from flask.ext.sqlalchemy import Pagination
+from app.connection import con
 
-engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
-con = engine.connect()
+
 @fast.route('/', defaults={'page': 1})
 @fast.route('/<int:page>')
 def index(page):
@@ -63,7 +62,8 @@ def Register():
             username=form.username.data
             password=form.password.data
             user=User(email=email,username=username,password=password)
-            personal=PersonalInfo()
+            
+           
             db.session.add(user)
             db.session.commit()
             flash('User {0} was registered successfully.'.format(username))
