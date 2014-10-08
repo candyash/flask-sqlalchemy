@@ -57,9 +57,7 @@ def adduser(email, username, admin=False):
     print('User {0} was registered successfully.'.format(username))
 
 
-if __name__ == '__main__':
-  
-    manager.run()
+
 
 
 
