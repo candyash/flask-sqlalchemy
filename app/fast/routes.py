@@ -57,18 +57,15 @@ def Register():
     """Register a new user."""
     form=RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
-        try:
-            email=form.email.data
-            username=form.username.data
-            password=form.password.data
-            user=User(email=email,username=username,password=password)
-            
-           
-            db.session.add(user)
-            db.session.commit()
-            flash('User {0} was registered successfully.'.format(username))
-        except:
-            flash ("you don't have database")
+       
+        email=form.email.data
+        username=form.username.data
+        password=form.password.data
+        user=User(email=email,username=username,is_admin=False,password=password)
+        db.session.add(user)
+        db.session.commit()
+        flash('User {0} was registered successfully.'.format(username))
+      
         return redirect(url_for('fastlog.login'))
     return render_template('fast/Register.html',form=form)
 
@@ -77,31 +74,30 @@ def Register():
 
 def profile():
     form =ProfileForm()
-    profileInfo=PersonalInfo(users=current_user)
+    
     if form.validate_on_submit():
         try:
-        
-            current_user.user_info.first_name=form.firstName.data
-            current_user.user_info.last_name=form.lastName.data
-            current_user.user_info.age=form.Age.data
-            current_user.user_info.location=form.location.data
-            current_user.user_info.bio=form.bio.data
-            db.session.add(current_user.user_info)
+
+            first_name=form.firstName.data
+            last_name=form.lastName.data
+            age=form.Age.data
+            location=form.location.data
+            bio=form.bio.data
+            user_id=current_user.id
+            profile=PersonalInfo(first_name,last_name,age,location,bio,user_id)
+            db.session.add(profile)
             db.session.commit()
         except:
-            flash("database missing!!")
+            flash("Error! User is not registred!")
 
         return redirect(url_for('fast.user', username=current_user.username))
-    if current_user.is_authenticated():
-        p=current_user.user_info.query.filter_by(user_id=current_user.id)
-        for j in p:
-            form.firstName.data=j.first_name
-            form.lastName.data=j.last_name
-            form.Age.data=j.age
-            form.location.data=j.location
-            form.bio.data=j.bio
-    
-    
+        #data=PersonalInfo.query(user_id=current_user.id).first()
+      
+        form.firstName.data=first_name
+        form.lastName.data=last_name
+        form.Age.data=age
+        form.location.data=location
+        form.bio.data=bio
     return render_template('fast/profile.html', form=form)
 @fast.route('/userlist', methods=['GET','POST'])
 

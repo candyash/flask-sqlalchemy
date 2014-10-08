@@ -16,7 +16,7 @@ from sqlalchemy.orm import mapper
 Base = declarative_base()
 
 
-class User(UserMixin, db.Model,Base):
+class User(UserMixin,db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -29,16 +29,19 @@ class User(UserMixin, db.Model,Base):
     user_info=db.relationship('PersonalInfo' ,uselist=False,backref='users')
     friends=db.relationship('Friend', lazy='dynamic', backref='friends')
     
-    def __init__(self, email, username, is_admin, password_hash):
+    def __init__(self, email, username, is_admin,password):
         self.email=email
         self.username=username
         self.is_admin=is_admin
+        self.password_hash=generate_password_hash(password)
+        
+       
+    
       
     def __repr__(self):
         return '<username {}'.format(self.username)
     
-    
-    
+
     
     
     def for_approval(self, admin=False):
@@ -75,7 +78,7 @@ class User(UserMixin, db.Model,Base):
         return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() + '?d=mm&s=' + str(size)
 
   
-class PersonalInfo(db.Model, Base):
+class PersonalInfo(db.Model):
     __tablename__= 'user_info'
     id=db.Column(db.Integer, primary_key=True)
     first_name=db.Column(db.String(30))
@@ -86,19 +89,20 @@ class PersonalInfo(db.Model, Base):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    def __init__(self, first_name, last_name, age, location, bio, member_since):
-        self.first_name=frist_name
+    def __init__(self, first_name, last_name, age, location, bio, user_id):
+        self.first_name=first_name
         self.last_name=last_name
         self.age=age
         self.location=location
         self.bio=bio
-        self.member_since=member_since
+        self.user_id=user_id
+      
     def __repr__(self):
-        return '<username {}'.format(self.first_name)
+        return '<firstname {}'.format(self.first_name)
    
      
     
-class Friend(db.Model, Base):
+class Friend(db.Model):
     __tablename__ = 'friends'
     id=db.Column(db.Integer,primary_key=True )
     user_account=db.Column(db.Integer)
@@ -109,11 +113,9 @@ class Friend(db.Model, Base):
     status=db.Column(db.Boolean, default=False)
     bestFriend=db.relationship('BestFriend' ,uselist=False, lazy='joined', backref='bestfriend', cascade="all, delete, delete-orphan")
     
-    def __init__(self, user_account, friend_account, timestamp, user_id, approved, status):
+    def __init__(self, user_account, friend_account ,approved,status):
         self.user_account=user_account
         self.friend_account=friend_account
-        self.timestamp=timestamp
-        self.user_id=user_id
         self.approved=approved
         self.status=status
     
@@ -125,7 +127,7 @@ class Friend(db.Model, Base):
         return Friend.query.filter(Friend.status==True).filter(Friend.approved==True).\
         filter(Friend.user_account==userId).filter(Friend.friend_account==fid)
     
-class BestFriend(db.Model, Base):
+class BestFriend(db.Model):
     __tablename__ = 'bestfriend'
     id=db.Column(db.Integer,primary_key=True )
     best_friend=db.Column(db.Boolean, default=False)
