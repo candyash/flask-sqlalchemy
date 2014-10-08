@@ -5,7 +5,6 @@ from ..models import User
 from . import fastlog
 from .forms import LoginForm
 from app.connection import con
-from .. import db
 
 
 
@@ -23,9 +22,9 @@ def login():
     if form.validate_on_submit():
         email=form.email.data
       
-        user = db.session.query(User).filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
         #sql='select * from users where email=%s'
-        #user=con.execute(sql%(email)).first()
+        #user=con.execute(sql%(email).first()
         #user=User(password=user.passward_hash)
         if user is None or not user.verify_password(form.password.data):
             flash('Invalid email or password.')
