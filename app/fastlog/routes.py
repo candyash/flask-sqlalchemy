@@ -14,7 +14,7 @@ def login():
         
     if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
                 and not request.is_secure:
-        return redirect(url_for('.login', _external=True, _scheme='http'))
+        return redirect(url_for('.login', _external=True, _scheme='https'))
     
     
     form = LoginForm()
@@ -35,10 +35,10 @@ def login():
 def logout():
     logout_user()
     flash('You have been logged out.')
-    return redirect(url_for('/login'))
+    return redirect(url_for('fastlog.login'))
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect('fastlog.login')
+    return redirect('/login')
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
