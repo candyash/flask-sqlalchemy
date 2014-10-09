@@ -39,9 +39,9 @@ def logout():
     logout_user()
     flash('You have been logged out.')
     return redirect(url_for('fastlog.login'))
-@login_manager.unauthorized_handler
+'''@login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect(url_for('fastlog.login'))
+    return redirect(url_for('fastlog.login'))'''
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
