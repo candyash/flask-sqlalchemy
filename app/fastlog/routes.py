@@ -1,5 +1,5 @@
 from flask import render_template, current_app, request, redirect, url_for, \
-    flash
+    flash, session
 from flask.ext.login import login_user, logout_user, login_required
 from ..models import User
 from . import fastlog
@@ -24,6 +24,7 @@ def login():
             flash('Invalid email or password.')
             return redirect(url_for('.login'))
         login_user(user, form.remember_me.data)
+        session['logged_in'] = True
         return redirect(url_for('fast.index'))
     return render_template('fastlog/login.html', form=form)
         

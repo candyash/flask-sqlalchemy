@@ -1,6 +1,7 @@
 venv
 *.pyc
 *.db
+*.sqlite
 
 # Windows image file caches
 Thumbs.db
