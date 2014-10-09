@@ -27,7 +27,7 @@ def login():
         #session['remember_me'] =  remember
         login_user(user, remember=remember)
       
-        return redirect(request.args.get('next') or url_for('talks.index'))
+        return redirect(request.args.get('next') or url_for('fast.index'))
     return render_template('fastlog/login.html', form=form)
         
         
