@@ -14,7 +14,7 @@ def login():
         
     if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
                 and not request.is_secure:
-        return redirect(url_for('.login', _external=True, _scheme='https'))
+        return redirect(url_for('fastlog.login', _external=True, _scheme='https'))
     
     
     form = LoginForm()
