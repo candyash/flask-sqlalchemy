@@ -27,8 +27,6 @@ def index(page):
     except:
         flash('data not found')
     
-
-    
    
     return render_template('fast/index.html',pagination=pagination,user_list=user_list)
 
@@ -167,7 +165,6 @@ def friendadd():
 @login_required
 def friendrequest():
   
-  
 
     if current_user.is_authenticated:
             
@@ -178,8 +175,6 @@ def friendrequest():
         #for i in pinfo.:
            # flash('{0}'.format(pinfo))
             
-    
-  
     return render_template ('fast/friendrequest.html',pinfo=pinfo)
 
 
@@ -195,9 +190,10 @@ def confirm():
     
     if f_confirm is None:
         
-        try: 
+        try:
+            
             sql="UPDATE friends SET approved=%s WHERE user_id=%d AND friend_account=%d"
-            con.execute(sql%(True,userid, id_confirm))
+            con.execute(sql%(True, id_confirm,userid))
             flash('Thank you accepting the friend request!')
             return redirect(url_for('fast.index'))
         except:
@@ -227,6 +223,7 @@ def acceptedFriend():
     userid=current_user.id
     sql='SELECT friend_account FROM friends WHERE user_id=%d'
     f=con.execute(sql%userid).first()
+   
     
     #f=Friend.query.filter(Friend.user_id==current_user.id).filter(Friend.approved==True).first()
     if f is None:
@@ -236,9 +233,13 @@ def acceptedFriend():
                                         select * from user_info where user_id IN (select * from f_a)'
     accepted_friends=con.execute(sql%(userid,True))
     
-    
+    #To check the user has a best friend
+    sql_b='SELECT bestfriend.best_friend FROM bestfriend JOIN friends ON friends.id=bestfriend.friend_id \
+          WHERE friends.friend_account=%d AND friends.user_id=%d'
+    bfriend=con.execute(sql_b%(f[0],userid)).first()
+  
       
-    return render_template('fast/acceptedFriend.html',accepted_friends=accepted_friends)
+    return render_template('fast/acceptedFriend.html',accepted_friends=accepted_friends, bfriend=bfriend)
   
 @fast.route('/bestFriend', methods=['GET','POST'])
 def bestFriend():
@@ -248,7 +249,7 @@ def bestFriend():
     #faccount=Friend.query.join(Friend.bestFriend).filter(BestFriend.best_friend==True).filter(Friend.user_account==current_user.id).filter(Friend.friend_Account==user.id).first()
     sql='SELECT friends.id,bestfriend.best_friend FROM bestfriend JOIN friends ON bestfriend.friend_id=friends.id WHERE friend_account=%d'
     best_f=con.execute (sql%id_friend).first()
-    #lash('{0}'.format(best_f.best_friend))
+    #flash('{0}'.format(best_f.best_friend))
    
     
     if not best_f :
@@ -282,7 +283,7 @@ def unFriend():
         db.session.delete(faccount)
         db.session.commit()
         flash('You are Unfriend!')
-    except Sqlite.OperationalError:
+    except:
         flash("database missing!! \n")
     return redirect(url_for('fast.acceptedFriend'))
     

@@ -23,7 +23,8 @@ def login():
         if user is None or not user.verify_password(form.password.data):
             flash('Invalid email or password.')
             return redirect(url_for('.login'))
-        session['remember_me'] = form.remember_me.data
+        remember=form.remember_me.data
+        session['remember_me'] =remember
         login_user(user, remember=remember)
       
         return redirect(url_for('fast.index'))

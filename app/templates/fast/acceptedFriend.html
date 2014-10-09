@@ -5,8 +5,30 @@
 
        
 <div class="user-header">
-
+ {% if bfriend %}
  <ul class='user-list'> 
+{% for p in accepted_friends %}
+    {% if current_user.is_authenticated() %}
+
+    
+    <li class="user">
+    <div class="user-avatar"><img src="{{current_user.avatar(64)}}"></div>
+    <a class="btn btn-primary pull-right" name='addBestFriend' data-id="{{p.id}}"  href="{{url_for('fast.unFriend',id=p.id)}}">Un friend</a>     
+   <p>
+       Name: {% if p.first_name %}{{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}<br>{% endif %}
+       Age: {% if p.age %}{{ p.age}}<br>{% endif %}
+       Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
+    </p>
+    {% if p.bio %}<p>{{ p.bio }}</p>{% endif %}
+    </li>
+    {% endif %}
+{% endfor %} 
+
+
+</ul>
+{% else %}
+ 
+  <ul class='user-list'> 
 {% for p in accepted_friends %}
     {% if current_user.is_authenticated() %}
 
@@ -26,11 +48,12 @@
 
 
 </ul>
+{% endif %}
 
-
-   
+ 
 
 </div>
+</ul> 
 {% endblock %}
 
 
