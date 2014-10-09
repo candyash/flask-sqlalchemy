@@ -27,8 +27,7 @@ def index(page):
     except:
         flash('data not found')
     
-   
-   
+
     
    
     return render_template('fast/index.html',pagination=pagination,user_list=user_list)

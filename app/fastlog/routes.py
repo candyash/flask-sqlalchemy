@@ -23,8 +23,9 @@ def login():
         if user is None or not user.verify_password(form.password.data):
             flash('Invalid email or password.')
             return redirect(url_for('.login'))
-        login_user(user, form.remember_me.data)
-        session['logged_in'] = True
+        session['remember_me'] = form.remember_me.data
+        login_user(user, remember=remember)
+      
         return redirect(url_for('fast.index'))
     return render_template('fastlog/login.html', form=form)
         

@@ -19,7 +19,7 @@ if os.path.exists('.env'):
      
             
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'development')
+app = create_app(os.environ['FLASK_CONFIG'] or 'default')
 magrate=Migrate(app,db)
 manager = Manager(app)
 manager.add_command('db',MigrateCommand)
