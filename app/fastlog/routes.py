@@ -14,7 +14,7 @@ def login():
         
     if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
                 and not request.is_secure:
-        return redirect(url_for('fast.login'))
+        return redirect(url_for('.login', _external=True, _scheme='https'))
     
     
     form = LoginForm()
@@ -24,10 +24,10 @@ def login():
             flash('Invalid email or password.')
             return redirect(url_for('.login'))
         remember=form.remember_me.data
-        session['remember_me'] =remember
+        #session['remember_me'] =  remember
         login_user(user, remember=remember)
       
-        return redirect(url_for('fast.index'))
+        return redirect(request.args.get('next') or url_for('talks.index'))
     return render_template('fastlog/login.html', form=form)
         
         
@@ -39,9 +39,9 @@ def logout():
     logout_user()
     flash('You have been logged out.')
     return redirect(url_for('fastlog.login'))
-'''@login_manager.unauthorized_handler
+@login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect(url_for('fastlog.login'))'''
+    return redirect(url_for('fastlog.login'))
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
