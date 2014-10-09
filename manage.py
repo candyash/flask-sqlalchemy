@@ -19,7 +19,7 @@ if os.path.exists('.env'):
      
             
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+app = create_app(os.getenv('FLASK_CONFIG') or 'development')
 magrate=Migrate(app,db)
 manager = Manager(app)
 manager.add_command('db',MigrateCommand)
@@ -59,7 +59,7 @@ def adduser(email, username, admin=False):
 
 if __name__ == '__main__':
   
-    manager.run()
+   manager.run()
 
 
 
