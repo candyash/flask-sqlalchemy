@@ -10,12 +10,12 @@ from app.connection import con
 
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     flash("check1")
     
-    if request.method == 'POST':
+    if request.method == "POST":
         flash("check2")
     
     
@@ -30,34 +30,36 @@ def login():
             
     
             user = User.query.filter_by(email=form.email.data).first()
-            flash("check4")
+            
+            flash("{0}".format(user.username))
     
-            if user is None or not user.verify_password(form.password.data):
-                flash('Invalid email or password.')
+            if user.username is None or not user.verify_password(form.password.data):
+                flash("Invalid email or password.")
                 return redirect(url_for('auth.login'))
             else:
+                
                 remember=form.remember_me.data
-                session['remember_me'] =  remember
+                session["remember_me"] =  remember
                 login_user(user, remember=remember)
                 flash("Welcome! You are logged in sucessfuly!")
               
-                return redirect(request.args.get('next') or url_for('fast.index'))
+                return redirect(request.args.get("next") or url_for("fast.index"))
     flash("check6")
     
-    return render_template('auth/login.html', form=form)
+    return render_template("auth/login.html", form=form)
         
         
 
 
-@auth.route('/logout')
+@auth.route("/logout")
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.')
-    return redirect(url_for('auth.login'))
+    flash("You have been logged out.")
+    return redirect(url_for("auth.login"))
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect(url_for('auth.login'))
+    return redirect(url_for("auth.login"))
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

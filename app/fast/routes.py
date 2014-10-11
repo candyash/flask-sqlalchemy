@@ -10,15 +10,15 @@ from flask.ext.sqlalchemy import Pagination
 from app.connection import con
 
 
-@fast.route('/', defaults={'page': 1})
-@fast.route('/<int:page>')
+@fast.route("/", defaults={"page": 1})
+@fast.route("/<int:page>")
 def index(page):
     
     try:
     
-        page=request.args.get('page', 1, type=int)
+        page=request.args.get("page", 1, type=int)
         pagination=PersonalInfo.query.order_by(PersonalInfo.member_since.asc())\
-        .paginate(page, per_page=current_app.config['USER_PER_PAGE'],error_out=False)
+        .paginate(page, per_page=current_app.config["USER_PER_PAGE"],error_out=False)
         #if current_user.is_authenticated():
           # user_list= con.execute('select * from user_info where id!=%d'%current_user.id )
           # return render_template('fast/index.html',pagination=pagination,user_list=user_list)
@@ -26,13 +26,13 @@ def index(page):
         #pagination=Pagination(userlist,page, per_page=current_app.config['USER_PER_PAGE'],error_out=False) 
         user_list=pagination
     except:
-        flash('data not found')
+        flash("data not found")
     
    
-    return render_template('fast/index.html',pagination=pagination,user_list=user_list)
+    return render_template("fast/index.html",pagination=pagination,user_list=user_list)
 
 
-@fast.route('/user/<username>')
+@fast.route("/user/<username>")
 def user(username):
     
         
@@ -42,15 +42,15 @@ def user(username):
        
     if personal is None:
             
-        flash('Please update your profile')
-        return redirect(url_for('fast.profile'))
+        flash("Please update your profile")
+        return redirect(url_for("fast.profile"))
    
         
   
     
     return render_template('fast/user.html', user=user,personal=personal)
 
-@fast.route('/Register', methods=['GET','POST'])
+@fast.route("/Register", methods=["GET","POST"])
 def Register():
     """Register a new user."""
     form=RegisterForm()
@@ -58,21 +58,21 @@ def Register():
         
     try:
             
-        if request.method=='POST' and form.validate_on_submit():
+        if request.method=="POST" and form.validate_on_submit():
             email=form.email.data
             username=form.username.data
             password=form.password.data
             user=User(email=email,username=username,is_admin=False,password=password)
             db.session.add(user)
             db.session.commit()
-            flash('User {0} was registered successfully.'.format(username))
+            flash("User {0} was registered successfully.".format(username))
         
-            return redirect(url_for('auth.login'))
+            return redirect(url_for("auth.login"))
     except:
-        flash('Error is found. The user already registerd to the system!')
-    return render_template('fast/Register.html',form=form)
+        flash("Error is found. The user already registerd to the system!")
+    return render_template("fast/Register.html",form=form)
 
-@fast.route('/profile', methods=['GET','POST'])
+@fast.route("/profile", methods=["GET","POST"])
 @login_required
 
 def profile():
@@ -101,30 +101,30 @@ def profile():
         form.Age.data=age
         form.location.data=location
         form.bio.data=bio
-    return render_template('fast/profile.html', form=form)
-@fast.route('/userlist', methods=['GET','POST'])
+    return render_template("fast/profile.html", form=form)
+@fast.route("/userlist", methods=['GET','POST'])
 
 def userlist():
     
     if current_user.user_info is None:
-        flash('Please update your profile to see more Monkeys!')
-        return redirect(url_for('fast.profile'))
-    sql='WITH u_info AS (SELECT friend_account FROM friends  WHERE user_id=%d AND approved=%s)\
-        SELECT * FROM user_info WHERE user_id IN(SELECT * FROM u_info)'
+        flash("Please update your profile to see more Monkeys!")
+        return redirect(url_for("fast.profile"))
+    sql="WITH u_info AS (SELECT friend_account FROM friends  WHERE user_id=%d AND approved=%s)\
+        SELECT * FROM user_info WHERE user_id IN(SELECT * FROM u_info)"
     #userlist=PersonalInfo.query.join(User.user_info).join(User.friend).filter(Friend.status==False).filter(User.id!=current_user.id)
     userl= con.execute(sql%(current_user.id,False ))
-    sql_b='SELECT * FROM user_info WHERE user_id!=%d'
+    sql_b="SELECT * FROM user_info WHERE user_id!=%d"
     userlist=con.execute(sql_b%current_user.id)
     
-    return render_template('fast/userlist.html',userlist=userlist )
+    return render_template("fast/userlist.html",userlist=userlist )
 
-@fast.route('/friendadd', methods=['GET','POST'])
+@fast.route("/friendadd", methods=["GET","POST"])
 def friendadd():
     id_friend=request.args.get('id', type=int)
     user_id=current_user.id
     try: 
         #retrive user information
-        s='SELECT first_name, last_name FROM user_info WHERE user_id=%d'
+        s="SELECT first_name, last_name FROM user_info WHERE user_id=%d"
         user_add=con.execute(s%(user_id)).first()
         
         #q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).first()
@@ -144,45 +144,45 @@ def friendadd():
             f.status=True      
             db.session.add(f)
             db.session.commit()
-            flash('Thank you! You sent friend request!!')
+            flash("Thank you! You sent friend request!!")
         else:
               
-            flash('Remember you sent friend request!')
+            flash("Remember you sent friend request!")
             #q=Friend.query.filter(Friend.friend_Account==user.id).filter(Friend.user_id==current_user.id).filter(Friend.status==1).first()
          
       
-        add_friend=con.execute('select user_info.user_id, user_info.first_name, user_info.last_name, user_info.age FROM user_info \
-                               JOIN friends ON user_info.user_id=friends.user_id where friends.user_account=%d'%id_friend)
+        add_friend=con.execute("select user_info.user_id, user_info.first_name, user_info.last_name, user_info.age FROM user_info \
+                               JOIN friends ON user_info.user_id=friends.user_id where friends.user_account=%d'%id_friend")
     
 
         return render_template('fast/friend_add.html',add_friend=add_friend)
     except:
-        flash('Error')
-        return redirect(url_for('fast.index'))
+        flash("Error")
+        return redirect(url_for("fast.index"))
 
 
-@fast.route('/friendrequest')
+@fast.route("/friendrequest")
 @login_required
 def friendrequest():
   
 
     if current_user.is_authenticated:
             
-        sql='WITH f_a As (select user_id from friends where friend_account =%d and approved=%s) \
-                                        select * from user_info where user_id IN (select * from f_a)'
+        sql="WITH f_a As (select user_id from friends where friend_account =%d and approved=%s) \
+                                        select * from user_info where user_id IN (select * from f_a)"
             # q=Friend.query.filter(Friend.approved==False).filter(Friend.user_account==current_user.id).first()
         pinfo=con.execute(sql%(current_user.id,False))
         #for i in pinfo.:
            # flash('{0}'.format(pinfo))
             
-    return render_template ('fast/friendrequest.html',pinfo=pinfo)
+    return render_template ("fast/friendrequest.html",pinfo=pinfo)
 
 
-@fast.route('/confirm', methods=['GET','PUT'])
+@fast.route("/confirm", methods=["GET","PUT"])
 def confirm():
-    id_confirm=request.args.get('id', type=int)
+    id_confirm=request.args.get("id", type=int)
     userid=current_user.id
-    sql='SELECT * FROM friends WHERE user_id=%d AND friend_account=%d'
+    sql="SELECT * FROM friends WHERE user_id=%d AND friend_account=%d"
     f_confirm=con.execute(sql%(current_user.id, id_confirm)).fetchone()
 
     
@@ -194,31 +194,31 @@ def confirm():
             
             sql="UPDATE friends SET approved=%s WHERE user_id=%d AND friend_account=%d"
             con.execute(sql%(True, id_confirm,userid))
-            flash('Thank you accepting the friend request!')
+            flash("Thank you accepting the friend request!")
             return redirect(url_for('fast.index'))
         except:
             flash('Error! Nothing added to the database!')
         
         
     else:
-        flash('your friendship confirmed')
-        return redirect(url_for('fast.index'))
+        flash("your friendship confirmed")
+        return redirect(url_for("fast.index"))
     
-@fast.route('/delete/<int:id>', methods=['GET','DELETE'])
+@fast.route("/delete/<int:id>", methods=["GET","DELETE"])
 def delete(id):
     account=Friend.query.get_or_404(id)
     try:
         if account.approved:
-            flash('The account is Deleted!!!')
-            return redirect(url_for('fast.index'))
+            flash("The account is Deleted!!!")
+            return redirect(url_for("fast.index"))
         account.approved=False
         db.session.delete(account)
         db.session.commit()
-        flash('YOU REJECT THE FRIENDSHIP REQUEST!')
+        flash("YOU REJECT THE FRIENDSHIP REQUEST!")
     except sqlite3.OperationalError:
         flash("database missing \n")
-    return redirect(url_for('fast.friendrequest'))
-@fast.route('/acceptedFriend', methods=['GET','POST'])
+    return redirect(url_for("fast.friendrequest"))
+@fast.route("/acceptedFriend", methods=["GET","POST"])
 def acceptedFriend():
     userid=current_user.id
     sql='SELECT friend_account FROM friends WHERE user_id=%d'
