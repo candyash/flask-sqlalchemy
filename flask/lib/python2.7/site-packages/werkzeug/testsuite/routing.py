@@ -5,7 +5,7 @@
 
     Routing tests.
 
-    :copyright: (c) 2013 by Armin Ronacher.
+    :copyright: (c) 2014 by Armin Ronacher.
     :license: BSD, see LICENSE for more details.
 """
 import unittest
@@ -626,6 +626,22 @@ class RoutingTestCase(WerkzeugTestCase):
         exc.code = 307
         env = create_environ()
         self.assert_strict_equal(exc.get_response(env).status_code, exc.code)
+
+    def test_redirect_path_quoting(self):
+        url_map = r.Map([
+            r.Rule('/<category>', defaults={'page': 1}, endpoint='category'),
+            r.Rule('/<category>/page/<int:page>', endpoint='category')
+        ])
+
+        adapter = url_map.bind('example.com')
+        try:
+            adapter.match('/foo bar/page/1')
+        except r.RequestRedirect as e:
+            response = e.get_response({})
+            self.assert_strict_equal(response.headers['location'],
+                                     u'http://example.com/foo%20bar')
+        else:
+            self.fail('Expected redirect')
 
     def test_unicode_rules(self):
         m = r.Map([

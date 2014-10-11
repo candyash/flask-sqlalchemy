@@ -5,7 +5,7 @@
 
     Tests the form parsing facilities.
 
-    :copyright: (c) 2013 by Armin Ronacher.
+    :copyright: (c) 2014 by Armin Ronacher.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -100,6 +100,17 @@ class FormParserTestCase(WerkzeugTestCase):
                                   method='POST')
         req.max_form_memory_size = 400
         self.assert_strict_equal(req.form['foo'], u'Hello World')
+
+    def test_missing_multipart_boundary(self):
+        data = (b'--foo\r\nContent-Disposition: form-field; name=foo\r\n\r\n'
+                b'Hello World\r\n'
+                b'--foo\r\nContent-Disposition: form-field; name=bar\r\n\r\n'
+                b'bar=baz\r\n--foo--')
+        req = Request.from_values(input_stream=BytesIO(data),
+                                  content_length=len(data),
+                                  content_type='multipart/form-data',
+                                  method='POST')
+        self.assert_equal(req.form, {})
 
     def test_parse_form_data_put_without_content(self):
         # A PUT without a Content-Type header returns empty data

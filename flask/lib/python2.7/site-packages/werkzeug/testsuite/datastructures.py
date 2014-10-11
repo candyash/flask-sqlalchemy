@@ -12,7 +12,7 @@
     -   Immutable types undertested
     -   Split up dict tests
 
-    :copyright: (c) 2013 by Armin Ronacher.
+    :copyright: (c) 2014 by Armin Ronacher.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -21,11 +21,11 @@ from __future__ import with_statement
 import unittest
 import pickle
 from contextlib import contextmanager
-from copy import copy
+from copy import copy, deepcopy
 
 from werkzeug import datastructures
 from werkzeug._compat import iterkeys, itervalues, iteritems, iterlists, \
-     iterlistvalues, text_type
+     iterlistvalues, text_type, PY2
 from werkzeug.testsuite import WerkzeugTestCase
 from werkzeug.exceptions import BadRequestKeyError
 
@@ -155,6 +155,16 @@ class MutableMultiDictBaseTestCase(WerkzeugTestCase):
 
         # copy method 2
         c = copy(md)
+        self.assert_equal(c['a'], 1)
+        self.assert_equal(c.getlist('a'), [1, 2, 3])
+        
+        # deepcopy method
+        c = md.deepcopy()
+        self.assert_equal(c['a'], 1)
+        self.assert_equal(c.getlist('a'), [1, 2, 3])
+        
+        # deepcopy method 2
+        c = deepcopy(md)
         self.assert_equal(c['a'], 1)
         self.assert_equal(c.getlist('a'), [1, 2, 3])
 
@@ -620,6 +630,18 @@ class HeadersTestCase(WerkzeugTestCase):
 
         self.assert_equal(h.get('x-foo-poo', as_bytes=True), b'bleh')
         self.assert_equal(h.get('x-whoops', as_bytes=True), b'\xff')
+
+    def test_to_wsgi_list(self):
+        h = self.storage_class()
+        h.set(u'Key', u'Value')
+        for key, value in h.to_wsgi_list():
+            if PY2:
+                self.assert_strict_equal(key, b'Key')
+                self.assert_strict_equal(value, b'Value')
+            else:
+                self.assert_strict_equal(key, u'Key')
+                self.assert_strict_equal(value, u'Value')
+
 
 
 class EnvironHeadersTestCase(WerkzeugTestCase):

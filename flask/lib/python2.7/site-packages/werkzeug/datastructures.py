@@ -5,18 +5,20 @@
 
     This module provides mixins and classes with an immutable interface.
 
-    :copyright: (c) 2013 by the Werkzeug Team, see AUTHORS for more details.
+    :copyright: (c) 2014 by the Werkzeug Team, see AUTHORS for more details.
     :license: BSD, see LICENSE for more details.
 """
 import re
 import sys
 import codecs
 import mimetypes
+from copy import deepcopy
 from itertools import repeat
 
 from werkzeug._internal import _missing, _empty_stream
 from werkzeug._compat import iterkeys, itervalues, iteritems, iterlists, \
-     PY2, text_type, integer_types, string_types, make_literal_wrapper
+     PY2, text_type, integer_types, string_types, make_literal_wrapper, \
+     to_native
 
 
 _locale_delim_re = re.compile(r'[_-]')
@@ -537,6 +539,10 @@ class MultiDict(TypeConversionDict):
         """Return a shallow copy of this object."""
         return self.__class__(self)
 
+    def deepcopy(self, memo=None):
+        """Return a deep copy of this object."""
+        return self.__class__(deepcopy(self.to_dict(flat=False), memo))
+
     def to_dict(self, flat=True):
         """Return the contents as regular dict.  If `flat` is `True` the
         returned dict will only have the first item present, if `flat` is
@@ -604,6 +610,9 @@ class MultiDict(TypeConversionDict):
 
     def __copy__(self):
         return self.copy()
+
+    def __deepcopy__(self, memo):
+        return self.deepcopy(memo=memo)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, list(iteritems(self, multi=True)))
@@ -1182,7 +1191,7 @@ class Headers(object):
         :return: list
         """
         if PY2:
-            return [(k, v.encode('latin1')) for k, v in self]
+            return [(to_native(k), v.encode('latin1')) for k, v in self]
         return list(self)
 
     def copy(self):
