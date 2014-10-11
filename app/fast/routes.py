@@ -13,6 +13,7 @@ from app.connection import con
 @fast.route('/', defaults={'page': 1})
 @fast.route('/<int:page>')
 def index(page):
+    
     try:
     
         page=request.args.get('page', 1, type=int)
