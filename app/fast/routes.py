@@ -33,20 +33,17 @@ def index(page):
 
 @fast.route('/user/<username>')
 def user(username):
-    user=[]
-    personal=[]
-    try:
+    
         
-        user=User.query.filter_by(username=username).first_or_404()
-        personal=PersonalInfo.query.filter_by(user_id=user.id).first()
+    user=User.query.filter_by(username=username).first_or_404()
+    personal=PersonalInfo.query.filter_by(user_id=user.id).first()
         
        
-        if personal is None:
+    if personal is None:
             
-            flash('Please update your profile')
-            return redirect(url_for('fast.profile'))
-    except:
-        flash("Error found!")
+        flash('Please update your profile')
+        return redirect(url_for('fast.profile'))
+   
         
   
     
@@ -56,9 +53,11 @@ def user(username):
 def Register():
     """Register a new user."""
     form=RegisterForm()
-    if request.method=='POST' and form.validate_on_submit():
+   
         
-        try:
+    try:
+            
+        if request.method=='POST' and form.validate_on_submit():
             email=form.email.data
             username=form.username.data
             password=form.password.data
@@ -67,9 +66,9 @@ def Register():
             db.session.commit()
             flash('User {0} was registered successfully.'.format(username))
         
-            return redirect(url_for('fastlog.login'))
-        except:
-            flash('Error is found. The user already registerd to the system!')
+            return redirect(url_for('auth.login'))
+    except:
+        flash('Error is found. The user already registerd to the system!')
     return render_template('fast/Register.html',form=form)
 
 @fast.route('/profile', methods=['GET','POST'])
