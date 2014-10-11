@@ -17,17 +17,16 @@ def login():
         
         if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
                     and not request.is_secure:
-            return redirect(url_for('auth.login', _external=True, _scheme='https'))
+            return redirect(url_for('.login', _external=True, _scheme='https'))
         
-        
-        form = LoginForm()
+ 
         if form.validate_on_submit():
             user = User.query.filter_by(email=form.email.data).first()
             if user is None or not user.verify_password(form.password.data):
                 flash('Invalid email or password.')
                 return redirect(url_for('auth.login'))
             remember=form.remember_me.data
-            #session['remember_me'] =  remember
+            session['remember_me'] =  remember
             login_user(user, remember=remember)
           
             return redirect(request.args.get('next') or url_for('fast.index'))
