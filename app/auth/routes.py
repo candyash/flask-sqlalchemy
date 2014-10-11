@@ -19,16 +19,18 @@ def login():
         flash("check2")
     
     
-        if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
+        '''if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
                     and not request.is_secure:
-            return redirect(url_for('.login', _external=True, _scheme='https'))
-        flash("check3")
+            return redirect(url_for('.login', _external=True, _scheme='https'))'''
+        
     
  
         if form.validate_on_submit():
-            flash("check4")
+            flash("check3")
+            
     
             user = User.query.filter_by(email=form.email.data).first()
+            flash("check4")
     
             if user is None or not user.verify_password(form.password.data):
                 flash('Invalid email or password.')
