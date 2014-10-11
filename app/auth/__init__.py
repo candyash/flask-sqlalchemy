@@ -1,5 +1,5 @@
 from flask import Blueprint
-fastlog=Blueprint('fastlog',__name__)
+auth=Blueprint('auth',__name__)
 from . import routes
 
 

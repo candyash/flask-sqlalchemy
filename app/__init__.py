@@ -55,8 +55,8 @@ def create_app(config_name):
     from .fast import fast as fast_blueprint
     app.register_blueprint(fast_blueprint)
 
-    from .fastlog import fastlog as fastlog_blueprint
-    app.register_blueprint(fastlog_blueprint)
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
     
     return app
    
