@@ -3,14 +3,14 @@
 
 
 <ul class="user-list">
-    
+    {% if current_user.is_authenticated() %}
     {% for p in user_list.items %}
  
    
     <li class="user">
-        {% if current_user.id %}
+      
      <div class="user-avatar"><img src="{{current_user.avatar(64)}}"></div>
- {% endif %}
+
    <p>
        Name: {% if p.first_name %}{{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}<br>{% endif %}
        Age: {% if p.age %}{{ p.age}}<br>{% endif %}
@@ -20,6 +20,7 @@
     </li>
 
 {% endfor %}
+ 
 </ul>
 <ul class='pager'>
     
@@ -35,5 +36,42 @@
     {% endif %}
     
 </ul>
+{% else %}
+
+    
+    
+<div class="container">
+      
+
+      <div class="jumbotron">
+        <h1>Fast Monkey app</h1>
+        <p class="lead">The app powered by flask! Enjoy!</p>
+        <p><a class="btn btn-lg btn-success" href="/Register" role="button">Sign up </a></p>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>app feature</h4>
+          <p>Add friends, follow, unfollow, delete and add best friend</p>
+
+          
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>&copy; ashenafi 2014</p>
+      </div>
+
+    </div
+
+
+
+</div>
+
+
+
+
+{% endif %}
+
 {% endblock %}
 

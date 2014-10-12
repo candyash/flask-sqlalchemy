@@ -55,7 +55,7 @@ def login():
 def logout():
     logout_user()
     flash("You have been logged out.")
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("fast.index"))
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return redirect(url_for("auth.login"))
