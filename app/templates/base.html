@@ -29,7 +29,7 @@
                 <li><a href="{{url_for('fast.acceptedFriend')}}">Friends</a></li>
                 <li><a href="{{url_for('fast.bestFriendList')}}">Best Friend</a></li>
                 <li><a href="{{url_for('fast.userlist')}}">Monkeys</a></li>
-              {% set request_count=current_user.for_approval(True).count() %}
+              {% set request_count=current_user.for_approval(True).count()%}
                 <li>
                     
                     <a href="{{url_for('fast.friendrequest')}}">Friends request
@@ -60,7 +60,7 @@
                {% else %}
                    
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="{{current_user.avatar(40)}}"> {{username}}<b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="{{current_user.avatar(40)}}"> {{current_user.username}}<b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                     </ul>

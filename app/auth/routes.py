@@ -13,27 +13,26 @@ from app.connection import con
 @auth.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    flash("check1")
+   
     
     if request.method == "POST":
-        flash("check2")
+      
     
     
-        '''if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
+        if not current_app.config['DEBUG'] and not current_app.config['TESTING'] \
                     and not request.is_secure:
-            return redirect(url_for('.login', _external=True, _scheme='https'))'''
+            return redirect(url_for('.login', _external=True, _scheme='https'))
         
     
  
         if form.validate_on_submit():
-            flash("check3")
-            
+          
     
             user = User.query.filter_by(email=form.email.data).first()
             
-            flash("{0}".format(user.username))
+      
     
-            if user.username is None or not user.verify_password(form.password.data):
+            if user is None or not user.verify_password(form.password.data):
                 flash("Invalid email or password.")
                 return redirect(url_for('auth.login'))
             else:
@@ -44,7 +43,7 @@ def login():
                 flash("Welcome! You are logged in sucessfuly!")
               
                 return redirect(request.args.get("next") or url_for("fast.index"))
-    flash("check6")
+   
     
     return render_template("auth/login.html", form=form)
         

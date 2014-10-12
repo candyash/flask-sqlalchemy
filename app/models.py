@@ -8,12 +8,17 @@ from flask import request, current_app
 from flask.ext.login import UserMixin
 from . import db
 from hashlib import md5
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import mapper
 
 
+friend_tag = db.Table('friend_tag',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('friend_id', db.Integer, db.ForeignKey('friends.id'))
+)
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
+)
 
-Base = declarative_base()
 
 
 class User(UserMixin,db.Model):
@@ -27,24 +32,52 @@ class User(UserMixin,db.Model):
     is_admin = db.Column(db.Boolean)
     password_hash = db.Column(db.String(128))
     user_info=db.relationship('PersonalInfo' ,uselist=False,backref='users')
-    friends=db.relationship('Friend', lazy='dynamic', backref='friends')
+    last_seen = db.Column(db.DateTime)
+    tag = db.relationship("Friend",
+                secondary=friend_tag,
+                backref=db.backref('friend_tag', lazy='dynamic'),
+                lazy='dynamic',cascade="save-update, merge, delete"
+                
+                )
+    
+    followed = db.relationship('User', 
+                               secondary=followers, 
+                               primaryjoin=(followers.c.follower_id == id), 
+                               secondaryjoin=(followers.c.followed_id == id), 
+                               backref=db.backref('followers', lazy='dynamic'), 
+                               lazy='dynamic')
+    
     
     def __init__(self, email, username, is_admin,password):
         self.email=email
         self.username=username
         self.is_admin=is_admin
         self.password_hash=generate_password_hash(password)
+   
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+            return self
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+            return self
+
+    def is_following(self, user):
+        return self.followed.filter(followers.c.followed_id == users.id).count() > 0
         
        
     
       
     def __repr__(self):
-        return '<username {}'.format(self.username)
+        return "<User(email='%s', username='%s')>" %(self.email, self.username)
     
 
     
     
     def for_approval(self, admin=False):
+    
         if admin :
             return Friend.for_approval(self.id)
     def approved(self):
@@ -62,8 +95,7 @@ class User(UserMixin,db.Model):
         if id:
             return User.query.get(id)
         return
-    def friend_status(self, fid):
-        return Friend.friendStatus(self.id,fid)
+ 
     
  
     @property
@@ -98,44 +130,33 @@ class PersonalInfo(db.Model):
         self.user_id=user_id
       
     def __repr__(self):
-        return '<firstname {}'.format(self.first_name)
+        return "<User Info(FirstName='%s', LastName='%s')>" %(self.first_name, self.last_name)
    
      
     
 class Friend(db.Model):
     __tablename__ = 'friends'
     id=db.Column(db.Integer,primary_key=True )
-    user_account=db.Column(db.Integer)
     friend_account=db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    user_id=db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     approved=db.Column(db.Boolean, default=False)
-    status=db.Column(db.Boolean, default=False)
-    bestFriend=db.relationship('BestFriend' ,uselist=False, lazy='joined', backref='bestfriend', cascade="all, delete, delete-orphan")
+    bestfriend=db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     
-    def __init__(self, user_account, friend_account ,approved,status):
-        self.user_account=user_account
+   
+    
+    def __init__(self, friend_account,approved,bestfriend):
         self.friend_account=friend_account
         self.approved=approved
-        self.status=status
+        self.bestfriend=bestfriend
+    def __repr__(self):
+        return '<sent request {}'.format(self.friend_account)
     
     @staticmethod
     def for_approval(userId):
         return Friend.query.filter(Friend.approved==False).filter(Friend.friend_account==userId)
-    @staticmethod
-    def friendStatus(userId, fid):
-        return Friend.query.filter(Friend.status==True).filter(Friend.approved==True).\
-        filter(Friend.user_account==userId).filter(Friend.friend_account==fid)
     
-class BestFriend(db.Model):
-    __tablename__ = 'bestfriend'
-    id=db.Column(db.Integer,primary_key=True )
-    best_friend=db.Column(db.Boolean, default=False)
-    friend_id=db.Column(db.Integer, db.ForeignKey('friends.id'))
     
-    def __init__(self, best_friend, friend_id):
-        self.best_friend=best_friend
-        self.friend_id=friend_id
+
     
     
     
