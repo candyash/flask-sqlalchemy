@@ -77,7 +77,7 @@ def Register():
 def profile():
     form =ProfileForm()
     profileInfo=PersonalInfo.query.filter_by(user_id=current_user.id)
-    flash("{0}".format(profileInfo))
+    
     if form.validate_on_submit():
         if profileInfo is None:
         
@@ -128,7 +128,7 @@ def friendadd():
         
     sql="SELECT * FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id WHERE user_id=%d AND friend_account=%d"
     q=con.execute(sql%(user_id,id_friend)).first()
-    flash('{0}'.format(q))
+   
         
     if q is None:
         f=Friend(approved=False,bestfriend=False,friend_account=id_friend)
@@ -145,12 +145,7 @@ def friendadd():
               
         flash("Remember you sent friend request!")
             
-        return redirect(url_for("fast.userlist"))
-
-                   
-        
-        
-
+        return redirect(url_for("fast.userlist")) 
 
 @fast.route("/friendrequest")
 @login_required
@@ -226,9 +221,6 @@ def acceptedFriend():
             if j==True:
                 flash('{0}'.format(j))
                 bfriend=True
-            
-        
-   
     
     #f=Friend.query.filter(Friend.user_id==current_user.id).filter(Friend.approved==True).first()
     if f is None:
@@ -272,19 +264,24 @@ def bestFriend():
 
 @fast.route('/unFriend',methods=['GET','DELETE'])
 def unFriend():
-    id=request.args.get('id', type=int)
-    account=User.query.get_or_404(id)
-    try:
-        faccount=Friend.query.filter(Friend.friend_Account==account.id).filter(Friend.user_account==current_user.id).first()
-        fbest=BestFriend.query.filter(BestFriend.friend_id==faccount)
-        
-        db.session.delete(faccount)
-        db.session.commit()
-        flash('You are Unfriend!')
-    except:
-        flash("database missing!! \n")
-    return redirect(url_for('fast.acceptedFriend'))
-    
+    id_friend=request.args.get('id', type=int)
+    account=User.query.get_or_404(id_friend)
+    if account:
+        try:
+            #faccount=Friend.query.filter(Friend.friend_Account==account.id).filter(Friend.user_account==current_user.id).first()
+            #fbest=BestFriend.query.filter(BestFriend.friend_id==faccount)
+            trans=con.begin()
+            sql='delete from friend_tag where friend_id IN (select id from friends join friend_tag ON friends.id=friend_tag.friend_id where user_id=%d and friend_account=%d);';
+            con.execute(sql%(id_friend, current_user.id))
+            trans.commit()
+            flash('You are Unfriend!')
+        except:
+            flash("database missing!! \n")
+        return redirect(url_for('fast.acceptedFriend'))
+    else:
+        flash('User not found!')
+        return redirect(url_for('fast.acceptedFriend'))
+    return redirect(url_for('fast.index'))   
       
 @fast.route('/bestFriendList')
 def bestFriendList():

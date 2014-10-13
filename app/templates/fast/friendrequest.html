@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-
+ 
+<div class="jumbotron">
+        <h1>Friend Request</h1>
+        <p class="lead">The app powered by flask! Enjoy!</p>
+        <p><a class="btn btn-lg btn-success" href="{{url_for('fast.index')}}" role="button">Hunt Friend</a></p>
+      </div>
  <ul class='user-list'>   
 <div class="user-header">
- <h2>Friend Request</h2>
+ 
 
  <ul class='user-list'>
 {% for p in pinfo %}
