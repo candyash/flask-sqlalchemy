@@ -12,7 +12,7 @@ from hashlib import md5
 
 friend_tag = db.Table('friend_tag',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('friend_id', db.Integer, db.ForeignKey('friends.id'))
+    db.Column('friend_id', db.Integer, db.ForeignKey('friends.id'), unique=True)
 )
 followers = db.Table('followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
@@ -119,10 +119,10 @@ class PersonalInfo(db.Model):
     location = db.Column(db.String(64))
     bio = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
-    user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id=db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
     
-  
-      
+   
+
       
     def __repr__(self):
         return "<User Info(FirstName='%s', LastName='%s')>" %(self.first_name, self.last_name)

@@ -40,16 +40,16 @@
  
   </ul>
  </div>
- {% if userlist %}
+ {% if user_list %}
  <div class="pager">
 <ul class="pager">
     {% if pagination.has_prev %}
-    <li class="previous"><a href="{{ url_for('fast.user', username=user.username, page=pagination.prev_num) }}">&larr; Newer</a></li>
+    <li class="previous"><a href="{{ url_for('fast.index', page=pagination.prev_num) }}">&larr; Newer</a></li>
     {% else %}
     <li class="previous disabled"><a href="#">&larr; Newer</a></li>
     {% endif %}
     {% if pagination.has_next %}
-    <li class="next"><a href="{{ url_for('fast.user', username=user.username, page=pagination.next_num) }}">Older &rarr;</a></li>
+    <li class="next"><a href="{{ url_for('fast.index', page=pagination.next_num) }}">Older &rarr;</a></li>
     {% else %}
     <li class="next disabled"><a href="#">Older &rarr;</a></li>
     {% endif %}
