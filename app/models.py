@@ -121,13 +121,8 @@ class PersonalInfo(db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    def __init__(self, first_name, last_name, age, location, bio, user_id):
-        self.first_name=first_name
-        self.last_name=last_name
-        self.age=age
-        self.location=location
-        self.bio=bio
-        self.user_id=user_id
+  
+      
       
     def __repr__(self):
         return "<User Info(FirstName='%s', LastName='%s')>" %(self.first_name, self.last_name)

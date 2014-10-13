@@ -24,7 +24,7 @@ def index(page):
           # return render_template('fast/index.html',pagination=pagination,user_list=user_list)
         #user_list= con.execute('select * from user_info')
         #pagination=Pagination(userlist,page, per_page=current_app.config['USER_PER_PAGE'],error_out=False) 
-        user_list=pagination
+        user_list=pagination.items
     except:
         flash("data not found")
     
@@ -66,53 +66,53 @@ def Register():
             db.session.commit()
             flash("User {0} was registered successfully.".format(username))
         
+        
             return redirect(url_for("auth.login"))
     except:
         flash("Error is found. The user already registerd to the system!")
     return render_template("fast/Register.html",form=form)
 
-@fast.route("/profile", methods=["GET","POST"])
+@fast.route('/profile', methods=['GET','POST'])
 @login_required
-
 def profile():
     form =ProfileForm()
-    
+    profileInfo=PersonalInfo()
     if form.validate_on_submit():
-        try:
-
-            first_name=form.firstName.data
-            last_name=form.lastName.data
-            age=form.Age.data
-            location=form.location.data
-            bio=form.bio.data
-            user_id=current_user.id
-            profile=PersonalInfo(first_name,last_name,age,location,bio,user_id)
-            db.session.add(profile)
-            db.session.commit()
-        except:
-            flash("Error! User is not registred!")
-
+        
+        profileInfo.first_name=form.firstName.data
+        profileInfo.last_name=form.lastName.data
+        profileInfo.age=form.Age.data
+        profileInfo.location=form.location.data
+        profileInfo.bio=form.bio.data
+        user_id=current_user.id
+        
+        db.session.add(profileInfo)
+        db.session.commit()
         return redirect(url_for('fast.user', username=current_user.username))
-        #data=PersonalInfo.query(user_id=current_user.id).first()
-      
-        form.firstName.data=first_name
-        form.lastName.data=last_name
-        form.Age.data=age
-        form.location.data=location
-        form.bio.data=bio
-    return render_template("fast/profile.html", form=form)
+    if current_user.is_authenticated():
+        p=PersonalInfo.query.filter_by(user_id=current_user.id).first()
+        if p:
+        
+            form.firstName.data=p.first_name
+            form.lastName.data=p.last_name
+            form.Age.data=p.age
+            form.location.data=p.location
+            form.bio.data=p.bio
+    return render_template('fast/profile.html', form=form)
+
+@fast.route("/userlist", defaults={"page": 1})
 @fast.route("/userlist", methods=['GET','POST'])
 
 def userlist():
-    
+    page=request.args.get("page", 1, type=int)
     if current_user.user_info is None:
         flash("Please update your profile to see more Monkeys!")
         return redirect(url_for("fast.profile"))
    
-    userlist=PersonalInfo.query.join(User.user_info).filter(User.id!=current_user.id)
-  
+    pagination=PersonalInfo.query.join(User.user_info).filter(User.id!=current_user.id).paginate(page, per_page=current_app.config["USER_PER_PAGE"],error_out=False)
+    userlist=pagination.items
     
-    return render_template("fast/userlist.html",userlist=userlist )
+    return render_template("fast/userlist.html",userlist=userlist, pagination=pagination )
 
 @fast.route("/friendadd", methods=["GET","POST"])
 def friendadd():

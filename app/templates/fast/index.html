@@ -1,41 +1,71 @@
 {% extends "base.html" %}
 {% block page_content %}
 
-
-<ul class="user-list">
-    {% if current_user.is_authenticated() %}
-    {% for p in user_list.items %}
- 
+{% if current_user.is_authenticated() %}
+ <div class="container">
+         <div class="jumbotron">
+          <h1>People you may know</h1>
+             <h2>Enjoy!</h2>
+           </div>
+               
+         </div>
+       
    
-    <li class="user">
-      
-     <div class="user-avatar"><img src="{{current_user.avatar(64)}}"></div>
+   
+ <div class="container">
+  <ul class='user-list'>
+   {% for p in user_list %}
+ <li class="user">
+        <hr class="featurette-divider">
 
-   <p>
-       Name: {% if p.first_name %}{{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}<br>{% endif %}
-       Age: {% if p.age %}{{ p.age}}<br>{% endif %}
-       Address: {% if p.location %}<a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a><br>{% endif %}
-    </p>
-    {% if p.bio %}<p>{{ p.bio }}</p>{% endif %}
-    </li>
+        <!-- First Featurette -->
+        <div class="featurette" id="about">
+            <img class="featurette-image img-circle img-responsive pull-right" src="{{current_user.avatar(128)}}">
+            {% if current_user.for_approval(True) %}
+    <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.id)}}">+1 Add Friend</a>
+    {% endif %}
+            <h2 class="featurette-heading">
+               {% if p.first_name %} {{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}{% endif %}
+            </h2>
+            {% if p.age %}<p class="lead"><span class="text-muted">Age : </span>{{ p.age}}{% endif %}</p>
+            {% if p.location %}<p class="lead"><span class="text-muted">Location :</span><a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a>{% endif %}</p>
+            {% if p.bio %}<p class="lead"><span class="text-muted">Profession :</span>{{ p.bio }}</p>{% endif %}</p>
+        </div>
 
-{% endfor %}
+
+
+   
+ </li>
+ {% endfor %}
  
-</ul>
-<ul class='pager'>
-    
-    {% if user_list.has_prev%}
-    <li class="previous"><a href="{{ url_for('fast.index',id=user_list.id,  page=user_list.prev_num) }}#Entry">&larr; Older</a></li>
+  </ul>
+ </div>
+ {% if userlist %}
+ <div class="pager">
+<ul class="pager">
+    {% if pagination.has_prev %}
+    <li class="previous"><a href="{{ url_for('fast.user', username=user.username, page=pagination.prev_num) }}">&larr; Newer</a></li>
     {% else %}
-    <li class="previous disabled"><a href="#">&larr; Older</a></li>
+    <li class="previous disabled"><a href="#">&larr; Newer</a></li>
     {% endif %}
-    {% if user_list.has_next %}
-    <li class="next"><a href="{{ url_for('fast.index',id=user_list.id, page=user_list.next_num) }}#Entry">Newer &rarr;</a></li>
+    {% if pagination.has_next %}
+    <li class="next"><a href="{{ url_for('fast.user', username=user.username, page=pagination.next_num) }}">Older &rarr;</a></li>
     {% else %}
-    <li class="next disabled"><a href="#">Newer &rarr;</a></li>
+    <li class="next disabled"><a href="#">Older &rarr;</a></li>
     {% endif %}
-    
 </ul>
+</div>
+{% endif %}
+  <!-- Footer -->
+   <hr class="featurette-divider">
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Your Website 2014</p>
+                </div>
+            </div>
+        </footer>
+
 {% else %}
 
     
@@ -58,9 +88,10 @@
         </div>
       </div>
 
-      <div class="footer">
-        <p>&copy; ashenafi 2014</p>
-      </div>
+       <footer>
+        <p>&copy; 2014 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+      </footer>
+      
 
     </div
 
