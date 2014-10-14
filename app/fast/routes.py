@@ -4,7 +4,6 @@ from ..import db
 from ..models import User, PersonalInfo, Friend
 from . import fast
 from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
-from sqlalchemy.orm import sessionmaker
 from config import Config
 from flask.ext.sqlalchemy import Pagination
 from app.connection import con
@@ -15,6 +14,7 @@ from app.connection import con
 def index(page):
     pagination=[]
     user_list=[]
+    
     if current_user.is_authenticated():
     
         page=request.args.get("page", 1, type=int)
@@ -209,17 +209,14 @@ def acceptedFriend():
     sql_a='SELECT * FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id\
         WHERE friend_account=%d'
     f=con.execute(sql_a%userid).first()
-    
-   
-    
-    #To check best friend check
+
+    '''To check best friend check'''
     bfriend=False
     sql_b='SELECT friends.bestfriend FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id WHERE friend_account=%d'
     befriend=con.execute(sql_b%(userid)).fetchall()
     for i in befriend:
         for j in i:
             if j==True:
-                flash('{0}'.format(j))
                 bfriend=True
     
     #f=Friend.query.filter(Friend.user_id==current_user.id).filter(Friend.approved==True).first()
@@ -229,15 +226,20 @@ def acceptedFriend():
     sql_c='WITH f_a As (select user_id from friends JOIN friend_tag ON friends.id=friend_tag.friend_id WHERE approved=%s AND friend_account=%d) \
                                         select * from user_info where user_id IN (select * from f_a)'
     accepted_friends=con.execute(sql_c%(True, userid))
+    
+    '''Accepted from friend side'''
+    sql_d='WITH f_a As (select friend_account from friends JOIN friend_tag ON friends.id=friend_tag.friend_id WHERE approved=%s AND user_id=%d) \
+                                        select * from user_info where user_id IN (select * from f_a)'
+    accepted_other=con.execute(sql_d%(True, userid))
 
   
       
-    return render_template('fast/acceptedFriend.html',accepted_friends=accepted_friends,bfriend=bfriend)
+    return render_template('fast/acceptedFriend.html',accepted_friends=accepted_friends,bfriend=bfriend,accepted_other=accepted_other)
   
 @fast.route('/bestFriend', methods=['GET','POST'])
 def bestFriend():
     id_friend=request.args.get('id', type=int)
-    flash('{0}'.format(id_friend))
+   
     userid=current_user.id
     sql_a='SELECT friends.bestfriend from friends JOIN friend_tag  ON friends.id=friend_tag.friend_id WHERE friend_tag.user_id=%d AND friends.friend_account=%d'
     q=con.execute(sql_a%(id_friend,userid)).first()
