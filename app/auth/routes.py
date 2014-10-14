@@ -41,6 +41,8 @@ def login():
                 session["remember_me"] =  remember
                 login_user(user, remember=remember)
                 flash("Welcome! You are logged in sucessfuly!")
+                
+                
               
                 return redirect(request.args.get("next") or url_for("fast.index"))
    

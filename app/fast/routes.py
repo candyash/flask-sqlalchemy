@@ -13,17 +13,12 @@ from app.connection import con
 @fast.route("/", defaults={"page": 1})
 @fast.route("/<int:page>")
 def index(page):
-    
     try:
     
         page=request.args.get("page", 1, type=int)
         pagination=PersonalInfo.query.order_by(PersonalInfo.member_since.asc())\
         .paginate(page, per_page=current_app.config["USER_PER_PAGE"],error_out=False)
-        #if current_user.is_authenticated():
-          # user_list= con.execute('select * from user_info where id!=%d'%current_user.id )
-          # return render_template('fast/index.html',pagination=pagination,user_list=user_list)
-        #user_list= con.execute('select * from user_info')
-        #pagination=Pagination(userlist,page, per_page=current_app.config['USER_PER_PAGE'],error_out=False) 
+        
         user_list=pagination.items
     except:
         flash("data not found")
@@ -35,17 +30,17 @@ def index(page):
 @fast.route("/user/<username>")
 def user(username):
     
-        
-    user=User.query.filter_by(username=username).first_or_404()
-    personal=PersonalInfo.query.filter_by(user_id=user.id).first()
-        
-       
-    if personal is None:
-            
+    '''initializing presonalinfo for the current user'''
+    user=User.query.get(current_user.id)
+    personal=PersonalInfo.query.filter(PersonalInfo.user_id==current_user.id).first()
+   
+    
+    if personal is None:   
+        userinfo=PersonalInfo(first_name='***',last_name='***',age=0,location='***',bio='**',user_id=current_user.id)
+        db.session.add(userinfo)
+        db.session.commit()
         flash("Please update your profile")
         return redirect(url_for("fast.profile"))
-
-  
     
     return render_template('fast/user.html', user=user,personal=personal)
 
@@ -62,7 +57,7 @@ def Register():
             username=form.username.data
             password=form.password.data
             user=User(email=email,username=username,is_admin=False,password=password)
-            db.session.add(user)
+            db.session.add (user)
             db.session.commit()
             flash("User {0} was registered successfully.".format(username))
         
@@ -75,31 +70,32 @@ def Register():
 @fast.route('/profile', methods=['GET','POST'])
 @login_required
 def profile():
+
+   
     form =ProfileForm()
-    profileInfo=PersonalInfo.query.filter_by(user_id=current_user.id)
+   
     
     if form.validate_on_submit():
-        if profileInfo is None:
         
-            profileInfo.first_name=form.firstName.data
-            profileInfo.last_name=form.lastName.data
-            profileInfo.age=form.Age.data
-            profileInfo.location=form.location.data
-            profileInfo.bio=form.bio.data
-            profileInfo.user_id=current_user.id
-            db.session.add(profileInfo)
-            db.session.commit()
-            flash("You have been updated your profile")
+        
+        current_user.user_info.first_name=form.firstName.data
+        current_user.user_info.last_name=form.lastName.data
+        current_user.user_info.age=form.Age.data
+        current_user.user_info.location=form.location.data
+        current_user.user_info.bio=form.bio.data
+        current_user.user_info.user_id=current_user.id
+        db.session.add(current_user.user_info)
+        db.session.commit()
+        flash("You have been updated your profile")
      
-            return redirect(url_for('fast.user', username=current_user.username))
-    if current_user.is_authenticated():
-        p=PersonalInfo.query.filter_by(user_id=current_user.id).first()
-        if p:
-            form.firstName.data=p.first_name
-            form.lastName.data=p.last_name
-            form.location.data=p.location
-            form.Age.data=p.age
-            form.bio.data=p.bio
+        return redirect(url_for('fast.user', username=current_user.username))
+    
+    if current_user.user_info:
+        form.firstName.data=current_user.user_info.first_name
+        form.lastName.data=current_user.user_info.last_name
+        form.location.data=current_user.user_info.location
+        form.Age.data=current_user.user_info.age
+        form.bio.data=current_user.user_info.bio
             
             
             
@@ -115,7 +111,7 @@ def userlist():
         flash("Please update your profile to see more Monkeys!")
         return redirect(url_for("fast.profile"))
    
-    pagination=PersonalInfo.query.join(User.user_info).filter(User.id!=current_user.id).paginate(page, per_page=current_app.config["USER_PER_PAGE"],error_out=False)
+    pagination=PersonalInfo.query.join(User.user_info).filter(User.id!=current_user.id).join(User.tag).filter(User.id==current_user.id).paginate(page, per_page=current_app.config["USER_PER_PAGE"],error_out=False)
     userlist=pagination.items
     
     return render_template("fast/userlist.html",userlist=userlist, pagination=pagination )
@@ -140,7 +136,7 @@ def friendadd():
         db.session.commit()
         
         flash("Thank you! You sent friend request!!")
-        return redirect(url_for("fast.userlist"))
+        return redirect(url_for("fast.index"))
     else:
               
         flash("Remember you sent friend request!")
@@ -188,21 +184,24 @@ def confirm():
     else:
         flash("your friendship confirmed")
     return redirect(url_for("fast.index"))
-    
-@fast.route("/delete/<int:id>", methods=["GET","DELETE"])
+
+@fast.route("/notnow/<int:id>", methods=["GET","DELETE"])
 def delete(id):
-    account=Friend.query.get_or_404(id)
+    user=User.query.get_or_404(id)
+    q=Friend.query.join(User.tag).filter(User.id==id).filter(Friend.friend_account==current_user.id).first()
+    flash('{0}'.format(q.id))
     try:
-        if account.approved:
-            flash("The account is Deleted!!!")
+        if q:
+           
+            db.session.delete(q)
+            db.session.commit()
+            flash("YOU REJECT THE FRIENDSHIP REQUEST!")
             return redirect(url_for("fast.index"))
-        account.approved=False
-        db.session.delete(account)
-        db.session.commit()
-        flash("YOU REJECT THE FRIENDSHIP REQUEST!")
-    except sqlite3.OperationalError:
+    except:
         flash("database missing \n")
     return redirect(url_for("fast.friendrequest"))
+ 
+
 @fast.route("/acceptedFriend", methods=["GET","POST"])
 def acceptedFriend():
     userid=current_user.id
@@ -238,14 +237,9 @@ def acceptedFriend():
 def bestFriend():
     id_friend=request.args.get('id', type=int)
     userid=current_user.id
-    user=User.query.get_or_404(id_friend)
-    sql='SELECT bestfriend, friend_id FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id \
-        WHERE friend_account=%d AND user_id=%d'
-    best_f=con.execute (sql%(id_friend,userid)).first()
-   
-   
-    
-    if not best_f [0]:
+    q=User.query.filter(User.id==id_friend).join(User.tag).filter(Friend.friend_account==userid).first()
+    flash('{0}'.format(q.approved))
+    if q.approved:
        
         
         trans=con.begin()

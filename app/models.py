@@ -13,6 +13,7 @@ from hashlib import md5
 friend_tag = db.Table('friend_tag',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('friend_id', db.Integer, db.ForeignKey('friends.id'), unique=True)
+
 )
 followers = db.Table('followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
@@ -113,15 +114,22 @@ class User(UserMixin,db.Model):
 class PersonalInfo(db.Model):
     __tablename__= 'user_info'
     id=db.Column(db.Integer, primary_key=True)
-    first_name=db.Column(db.String(30))
-    last_name=db.Column(db.String(30))
-    age=db.Column(db.Integer)
-    location = db.Column(db.String(64))
-    bio = db.Column(db.Text())
+    first_name=db.Column(db.String(30), default="None")
+    last_name=db.Column(db.String(30), default="None")
+    age=db.Column(db.Integer,default=20)
+    location = db.Column(db.String(64),default="Helsinki")
+    bio = db.Column(db.Text(), default="None")
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
     
-   
+    def __init__(self, first_name,last_name,age, location, bio, user_id):
+        self.first_name=first_name
+        self.last_name=last_name
+        self.age=age
+        self.location=location
+        self.bio=bio
+        self.user_id=user_id
+       
 
       
     def __repr__(self):
