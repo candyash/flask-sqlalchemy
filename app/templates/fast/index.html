@@ -22,7 +22,7 @@
         <div class="featurette" id="about">
             <img class="featurette-image img-circle img-responsive pull-right" src="{{current_user.avatar(128)}}">
             {% if current_user.for_approval(True) %}
-    <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.id)}}">+1 Add Friend</a>
+    <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.user_id)}}">+1 Add Friend</a>
     {% endif %}
             <h2 class="featurette-heading">
                {% if p.first_name %} {{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}{% endif %}
