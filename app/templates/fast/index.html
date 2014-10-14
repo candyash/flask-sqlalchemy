@@ -24,12 +24,12 @@
             {% if current_user.for_approval(True) %}
     <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.user_id)}}">+1 Add Friend</a>
     {% endif %}
-            <h2 class="featurette-heading">
+            <h3 class="featurette-heading">
                {% if p.first_name %} {{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}{% endif %}
-            </h2>
-            {% if p.age %}<p class="lead"><span class="text-muted">Age : </span>{{ p.age}}{% endif %}</p>
-            {% if p.location %}<p class="lead"><span class="text-muted">Location :</span><a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a>{% endif %}</p>
-            {% if p.bio %}<p class="lead"><span class="text-muted">Profession :</span>{{ p.bio }}</p>{% endif %}</p>
+            </h3>
+            {% if p.age %}<h4 class="lead">Age :{{ p.age}}{% endif %}</h4>
+            {% if p.location %}<h4 class="lead">Location <a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a>{% endif %}</h4>
+            {% if p.bio %}<h4 class="lead">Profession {{ p.bio }}</p>{% endif %}</4>
         </div>
 
 

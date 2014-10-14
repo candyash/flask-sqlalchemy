@@ -6,7 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or '\xbb\xed\x0e?\xcfY#8Ev\x17\x04t\x15\xa4\x8b\xa8\x83\xb2\x16\rnI\xf0'
-    USER_PER_PAGE = 6
+    USER_PER_PAGE = 5
     if os.environ.get('DATABASE_URL') is None:
         SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql+psycopg2://ashnet:Uno12mazurca@localhost/datadev')
     else:

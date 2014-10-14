@@ -1,5 +1,5 @@
 {% extends "bootstrap/base.html" %}
-
+<meta name="viewport" content="width=1024">
 {% block title %}FastMonkey{% endblock %}
 
 {% block head %}
@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-default" role="navigation">
+<div class="nav-pills" role="navigation">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -29,7 +29,7 @@
                 <li><a href="{{url_for('fast.user', username=current_user.username)}} ">Profile</a></li>
                 <li><a href="{{url_for('fast.acceptedFriend')}}">Friends</a></li>
                 <li><a href="{{url_for('fast.bestFriendList')}}">Best Friend</a></li>
-                <li><a href="{{url_for('fast.userlist')}}">Monkeys</a></li>
+                
               {% set request_count=current_user.for_approval(True).count()%}
                 <li>
                     

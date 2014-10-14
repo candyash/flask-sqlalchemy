@@ -1,16 +1,22 @@
-# Features for fastMonkey flask-sqlalchemy
---------------------------------------------
-- Add monkey <br>
-- View monkey proOile <br>
-- The proOile page should show the name, age and email of a monkey <br>
-- Edit monkey
-- Remove monkey
-- Friend monkeys
-- Each monkey can have multiple friends
-- Unfriend monkeys
-- Add best friend to a monkey
-- Each monkey can only have one best friend
-- List monkeys
-- Show monkey names, name of the best friend (if any) and number of friends
-- Sortable by name, name of the best friend and number of friends
-- Pagination
+Flask Fast Monkey app
+================
+
+
+Set up
+------------
+**Step 1**: Clone the git repository
+
+    $ https://github.com/candyash/flask-Sqlalchemy-FastMonkey
+    $ cd flask-Sqlalchemy-FastMonkey
+
+**Step 2**: Create a virtual environment
+
+    $ virtualenv flask
+    $ source flask/bin/activate
+    (venv) $ pip install -r requirements.txt
+**Step 3**: Start the application:
+
+    (venv) $ python manage.py runserver
+     * Running on http://127.0.0.1:5000/
+     * Restarting with reloader
+

@@ -16,11 +16,10 @@ def index(page):
     user_list=[]
     
     if current_user.is_authenticated():
-    
+        """To list all users"""
         page=request.args.get("page", 1, type=int)
         pagination=PersonalInfo.query.join(User.user_info).filter(User.id!=current_user.id).order_by(PersonalInfo.member_since.asc())\
             .paginate(page, per_page=current_app.config["USER_PER_PAGE"],error_out=False)
-            
         user_list=pagination.items
   
       
@@ -32,7 +31,7 @@ def index(page):
 @fast.route("/user/<username>")
 def user(username):
     
-    '''initializing presonalinfo for the current user'''
+    """initializing presonalinfo for the current user"""
     user=User.query.get(current_user.id)
     personal=PersonalInfo.query.filter(PersonalInfo.user_id==current_user.id).first()
    
@@ -108,6 +107,7 @@ def profile():
 @fast.route("/userlist", methods=['GET','POST'])
 
 def userlist():
+    """user list in the system"""
     page=request.args.get("page", 1, type=int)
     if current_user.user_info is None:
         flash("Please update your profile to see more Monkeys!")
@@ -120,6 +120,7 @@ def userlist():
 
 @fast.route("/friendadd", methods=["GET","POST"])
 def friendadd():
+    """accepting friend request"""
     id_friend=request.args.get('id', type=int)
     user_id=current_user.id   
     sql="SELECT * FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id WHERE user_id=%d AND friend_account=%d"
@@ -163,6 +164,9 @@ def friendrequest():
 
 @fast.route("/confirm", methods=["GET","PUT"])
 def confirm():
+    
+    """friend confirmation"""
+    
     id_confirm=request.args.get("id", type=int)
     userid=current_user.id
   
@@ -188,6 +192,8 @@ def confirm():
 
 @fast.route("/delete/<int:id>", methods=["GET","DELETE"])
 def delete(id):
+    
+    """rejecting friend request"""
     user=User.query.get_or_404(id)
     q=Friend.query.join(User.tag).filter(User.id==id).filter(Friend.friend_account==current_user.id).first()
    
@@ -205,6 +211,9 @@ def delete(id):
     
 @fast.route("/acceptedFriend", methods=["GET","POST"])
 def acceptedFriend():
+    
+    """accepted friend list"""
+    
     userid=current_user.id
     sql_a='SELECT * FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id\
         WHERE friend_account=%d'
@@ -238,6 +247,9 @@ def acceptedFriend():
   
 @fast.route('/bestFriend', methods=['GET','POST'])
 def bestFriend():
+    
+    """best friend add"""
+    
     id_friend=request.args.get('id', type=int)
    
     userid=current_user.id
@@ -263,6 +275,9 @@ def bestFriend():
 
 @fast.route('/unFriend',methods=['GET','DELETE'])
 def unFriend():
+    
+    """deleting friend from friendship list"""
+    
     id_friend=request.args.get('id', type=int)
     account=User.query.get_or_404(id_friend)
     if account:
@@ -287,6 +302,9 @@ def unFriend():
       
 @fast.route('/bestFriendList')
 def bestFriendList():
+    
+    """best friend list if there is best friend for the current user """
+    
     userid=current_user.id
     sql='SELECT friend_account, user_id FROM friends JOIN friend_tag ON friends.id=friend_tag.friend_id WHERE friend_account=%d AND bestfriend=%s'
     best_f=con.execute (sql%(userid,True)).first()
@@ -306,6 +324,9 @@ def bestFriendList():
 
 @fast.route('/cancel', methods=['GET','POST'])
 def cancelbestfriend ():
+    
+    """deleting best frendship"""
+    
     id_friend=request.args.get('id', type=int)
     userid=current_user.id
     trans=con.begin()
