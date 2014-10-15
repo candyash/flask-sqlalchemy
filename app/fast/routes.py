@@ -340,34 +340,45 @@ def cancelbestfriend ():
     
 @fast.route('/follower', methods=['GET','POST'])
 def follower():
+    """adding follower"""
     id_follower=request.args.get('id', type=int)
     userid=current_user.id
     follower=User.query.get(id_follower)
     currentuser=User.query.get(userid)
     sql='SELECT follower_id FROM followers where followed_id=%d'
-    q=con.execute(sql%(userid ))
-    check=False
-    for i in q:
-        
-        if id_follower!=i[0]:
-            check=True
-    
-    if check:
+    if len(q)==0:
         f=follower.followed.append(currentuser)
         db.session.commit()
-        flash('Thankyou! you are following {0}'.format(current_user.username))
+        flash('Thankyou! you are following {0}'.format(follower.username))
         return redirect(url_for('fast.followerlist'))
-    flash('Sorry! You are already following {0}'.format(current_user.username))
+    else:
+    
+        check=False
+        for i in q:
+            
+            
+            if id_follower!=i[0] :
+                check=True
+        
+        if check or q is None:
+            f=follower.followed.append(currentuser)
+            db.session.commit()
+            flash('Thankyou! you are following {0}'.format(follower.username))
+            return redirect(url_for('fast.followerlist'))
+    flash('Sorry! You are already following {0}'.format(follower.username))
     return redirect(url_for('fast.index'))
 
 @fast.route('/followerlist', methods=['GET','POST'])
 def followerlist():
+    
+    """"follower list"""
     sql='With f_a AS (SELECT follower_id FROM followers where followed_id=%d) SELECT users.id, users.username, users.email FROM users WHERE users.id IN (SELECT * FROM f_a)'
     f_list=con.execute(sql%(current_user.id))
     return render_template('fast/follow.html',f_list=f_list)
     
 @fast.route('/unfollow', methods=['GET','DELETE'])
 def unfollow():
+    """"Unfollow"""
     id_follower=request.args.get('id', type=int)
     userid=current_user.id
     follower=User.query.get(id_follower)
