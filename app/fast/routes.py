@@ -346,6 +346,8 @@ def follower():
     follower=User.query.get(id_follower)
     currentuser=User.query.get(userid)
     sql='SELECT follower_id FROM followers where followed_id=%d'
+    q=con.execute(sql%(userid )).fetchall()
+ 
     if len(q)==0:
         f=follower.followed.append(currentuser)
         db.session.commit()
