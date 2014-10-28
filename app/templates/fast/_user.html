@@ -1,0 +1,13 @@
+<ul class="user-list">
+{% if pagination %}
+{% set base_index = (pagination.page - 1) * pagination.per_page %}
+{% else %}
+{% set base_index = 0 %}
+{% endif %}
+{% for p in user %}
+{% set index = loop.index + base_index %}
+<li class="user">
+{% include "fast/_users.html" %}
+</li>
+{% endfor %}
+</ul>

@@ -32,7 +32,7 @@ class User(UserMixin,db.Model):
                          nullable=False, unique=True, index=True)
     is_admin = db.Column(db.Boolean)
     password_hash = db.Column(db.String(128))
-    user_info=db.relationship('PersonalInfo' ,uselist=False,backref='users')
+    user_info=db.relationship('PersonalInfo' ,uselist=False,backref='users',cascade="save-update, merge, delete")
     last_seen = db.Column(db.DateTime)
     tag = db.relationship("Friend",
                 secondary=friend_tag,
@@ -46,7 +46,7 @@ class User(UserMixin,db.Model):
                                primaryjoin=(followers.c.follower_id == id), 
                                secondaryjoin=(followers.c.followed_id == id), 
                                backref=db.backref('followers', lazy='dynamic'), 
-                               lazy='dynamic')
+                               lazy='dynamic',cascade="save-update, merge, delete")
     
     
     def __init__(self, email, username, is_admin,password):
@@ -144,6 +144,7 @@ class Friend(db.Model):
     approved=db.Column(db.Boolean, default=False)
     bestfriend=db.Column(db.Boolean, default=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
     
    
     
@@ -157,8 +158,8 @@ class Friend(db.Model):
     @staticmethod
     def for_approval(userId):
         return Friend.query.filter(Friend.approved==False).filter(Friend.friend_account==userId)
-    
-    
+
+
 
     
     

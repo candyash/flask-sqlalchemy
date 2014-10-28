@@ -11,43 +11,15 @@
          </div>
        
    
-   
- <div class="container">
-  <ul class='user-list'>
-   {% for p in user_list %}
- <li class="user">
-        
 
-        <!-- First Featurette -->
-        <div class="featurette" id="about">
-            <img class="featurette-image img-circle img-responsive pull-right" src="{{current_user.avatar(80)}}">
-            {% if current_user.for_approval(True) %}
-    <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.user_id)}}">+1 Add Friend</a>
-    {% endif %}
-            <h3 class="featurette-heading">
-               {% if p.first_name %} {{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}{% endif %}
-            </h3>
-            {% if p.age %}<h4 class="lead">Age :{{ p.age}}{% endif %}</h4>
-            {% if p.location %}<h4 class="lead">Location <a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a>{% endif %}</h4>
-             <a class="btn btn-success pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.follower',id=p.user_id)}}">Follow</a>
-      
-            {% if p.bio %}<h4 class="lead">Profession {{ p.bio }}</p>{% endif %}</4>
-        
-         </div>
 
-    
-
-   
- </li>
- {% endfor %}
- 
-  </ul>
- </div>
- {% if user_list %}
+ {% if user %}
+    <h3>Monkey List</h3> 
+{% include "fast/_user.html" %}   
  <div class="pager">
 <ul class="pager">
     {% if pagination.has_prev %}
-    <li class="previous"><a href="{{ url_for('fast.index', page=pagination.prev_num) }}">&larr; Newer</a></li>
+    <li class="previous"><a href="{{ url_for('fast.index',page=pagination.prev_num) }}">&larr; Newer</a></li>
     {% else %}
     <li class="previous disabled"><a href="#">&larr; Newer</a></li>
     {% endif %}
