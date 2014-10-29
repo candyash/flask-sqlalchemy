@@ -4,7 +4,7 @@ from flask.ext.login import login_required, current_user
 from ..import db
 from ..models import User, PersonalInfo, Friend
 from . import fast
-from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
+from .forms import ProfileForm, RegisterForm
 from config import Config
 from flask.ext.sqlalchemy import Pagination
 
