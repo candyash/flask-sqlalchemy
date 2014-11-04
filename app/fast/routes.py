@@ -81,7 +81,7 @@ def monkeyfriend():
     user_list = []
     f_account = []
     m_user = User.query.filter(User.id == id_monkey).first()
-    q = Friend.query.join(User.tag).filter(User.id == id_monkey).first()
+    q = Friend.query.join(User.tag).filter(User.id == id_monkey).filter(Friend.bestfriend == True ).first()
     if q is None:
         btn_best = True
     elif q.bestfriend:
