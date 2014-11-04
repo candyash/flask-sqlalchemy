@@ -1,12 +1,12 @@
 from flask import render_template, flash, redirect, \
     url_for, abort, request, current_app
-from flask.ext.login import login_required, current_user
 from ..import db
-from ..models import User, PersonalInfo, Friend
+from ..models import User, Friend
 from . import fast
-from .forms import ProfileForm, PresenterCommentForm, CommentForm, RegisterForm
+from .forms import AddMonkeyForm
 from config import Config
 from flask.ext.sqlalchemy import Pagination
+from sqlalchemy import func
 
 
 @fast.route("/", defaults={"page": 1})
@@ -14,270 +14,252 @@ from flask.ext.sqlalchemy import Pagination
 def index():
     pagination = []
     user_list = []
-    if current_user.is_authenticated():
-        """To list all users"""
-        page = request.args.get("page", 1, type=int)
-        pagination = PersonalInfo.query.join(User.user_info).filter(User.id != current_user.id).\
-            order_by(PersonalInfo.member_since.asc()).paginate(page, \
-            per_page=current_app.config["USER_PER_PAGE"], error_out=False)
-        user_list = pagination.items
-    return render_template\
-        ("fast/index.html", pagination=pagination, user=user_list)
-@fast.route("/user/<username>")
-def user(username):
-    """initializing presonalinfo for the current user"""
-    user = User.query.get(current_user.id)
-    personal = PersonalInfo.query.\
-        filter(PersonalInfo.user_id == current_user.id).first()
-    if personal is None:
-        userinfo = PersonalInfo(first_name='***', last_name='***', age=0, \
-            location='***', bio='**', user_id=current_user.id)
-        db.session.add(userinfo)
-        db.session.commit()
-        flash("Please update your profile")
-        return redirect(url_for("fast.profile"))
-    return render_template('fast/user.html', user=user, personal=personal)
-@fast.route("/Register", methods=["GET", "POST"])
-def Register():
-    """Register a new user."""
-    form = RegisterForm()
+    """To list all users"""
+    page = request.args.get("page", 1, type=int)
+    pagination = User.query.order_by(User.member_since.desc()).\
+        paginate(page,
+                 per_page=current_app.config["USER_PER_PAGE"], error_out=False)
+    user_list = pagination.items
+    return render_template("fast/index.html",
+                           pagination=pagination, user=user_list)
+
+
+@fast.route("/addMonkey", methods=["GET", "POST"])
+def addMonkey():
+    """add a new monkey."""
+    form = AddMonkeyForm()
     try:
         if request.method == "POST" and form.validate_on_submit():
-            email = form.email.data
-            username = form.username.data
-            password = form.password.data
-            user = User\
-            (email=email, username=username, is_admin=False, password=password)
+            name = form.Name.data
+            email = form.Email.data
+            age = form.Age.data
+            user = User(name=name, email=email, age=age)
             db.session.add(user)
             db.session.commit()
-            flash("User {0} was registered successfully.".format(username))
-            return redirect(url_for("auth.login"))
+            flash("User {0} was registered successfully.".format(name))
+            return redirect(url_for("fast.index"))
     except:
         flash("Error is found. The user already registerd to the system!")
-    return render_template("fast/Register.html", form=form)
+    return render_template("fast/addmonkey.html", form=form)
+
+
+@fast.route("/monkey", methods=["GET", "POST"])
+def monkeyProfile():
+    """initializing presonalinfo for the current user"""
+    id_monkey = request.args.get("id", type=int)
+    user = User.query.get(id_monkey)
+    return render_template('fast/user.html', user=user)
+
+
 @fast.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    form = ProfileForm()
+def edit():
+    form = AddMonkeyForm()
+    id_monkey = request.args.get("id", type=int)
+    user = User.query.filter(User.id == id_monkey).first()
     if form.validate_on_submit():
-        current_user.user_info.first_name = form.firstName.data
-        current_user.user_info.last_name = form.lastName.data
-        current_user.user_info.age = form.Age.data
-        current_user.user_info.location = form.location.data
-        current_user.user_info.bio = form.bio.data
-        current_user.user_info.user_id = current_user.id
-        db.session.add(current_user.user_info)
+        user.name = form.Name.data
+        user.email = form.Email.data
+        user.age = form.Age.data
+        user.id = id_monkey
+        db.session.add(user)
         db.session.commit()
         flash("You have been updated your profile")
-        return redirect(url_for('fast.user', username=current_user.username))
-    if current_user.user_info:
-        form.firstName.data = current_user.user_info.first_name
-        form.lastName.data = current_user.user_info.last_name
-        form.location.data = current_user.user_info.location
-        form.Age.data = current_user.user_info.age
-        form.bio.data = current_user.user_info.bio
+        return redirect(url_for('fast.index'))
+    if user:
+        form.Name.data = user.name
+        form.Email.data = user.email
+        form.Age.data = user.age
     return render_template('fast/profile.html', form=form)
-@fast.route("/userlist", defaults={"page": 1})
-@fast.route("/userlist", methods=['GET', 'POST'])
-def userlist():
-    """user list in the system"""
-    page = request.args.get("page", 1, type=int)
-    if current_user.user_info is None:
-        flash("Please update your profile to see more Monkeys!")
-        return redirect(url_for("fast.index"))
-    pagination = PersonalInfo.query.join(User.user_info).filter(User.id != current_user.id).\
-        join(User.tag).filter(User.id == current_user.id).paginate\
-            (page, per_page=current_app.config["USER_PER_PAGE"], \
-                error_out=False)
-    userlist = pagination.items
-    return render_template\
-    ("fast/userlist.html", userlist=userlist, pagination=pagination)
-@fast.route("/friendadd", methods=["GET", "POST"])
-def friendadd():
-    """accepting friend request"""
-    id_friend = request.args.get('id', type=int)
-    userid = current_user.id
-    q = Friend.query.join(User.tag).filter(Friend.friend_account == id_friend).\
-        filter(User.id == userid).first()
+
+
+@fast.route("/monkeyfriend", defaults={"page": 1})
+@fast.route("/monkeyfriend", methods=['GET', 'POST'])
+def monkeyfriend():
+    id_monkey = request.args.get("id", type=int)
+    btn_best = False
+    pagination = []
+    user_list = []
+    f_account = []
+    m_user = User.query.filter(User.id == id_monkey).first()
+    q = Friend.query.join(User.tag).filter(User.id == id_monkey).first()
     if q is None:
-        f = Friend(friend_account=id_friend, approved=False, bestfriend=False)
-        db.session.add(f)
-        db.session.commit()
-        tag = current_user.tag.append(f)
-        db.session.commit()
-        flash("Thank you! You sent friend request!!")
-        return redirect(url_for("fast.index"))
-    else:
-        flash("Remember you sent friend request!")
-        return redirect(url_for("fast.userlist"))
-@fast.route("/friendrequest")
-@login_required
-def friendrequest():
-    if current_user.is_authenticated:
-        pinfo=PersonalInfo.query.join(User.user_info).join(User.tag).\
-            filter(Friend.friend_account == current_user.id).\
-            filter(Friend.approved == False)
-    return render_template("fast/friendrequest.html", pinfo=pinfo)
+        btn_best = True
+    elif q.bestfriend:
+        btn_best = False
+    """Friend add check"""
+    check = Friend.query.join(User.tag).filter(User.id == id_monkey)
+    if check:
+        for i in check:
+            f_account.append(i.friend_account)
+    """To list all users"""
+    page = request.args.get("page", 1, type=int)
+    pagination = User.query.filter(User.id != id_monkey).filter(User.id.notin_(f_account)).\
+        order_by(User.member_since.desc()).\
+        paginate(page, per_page=current_app.config["USER_PER_PAGE"],
+                 error_out=False)
+    user_list = pagination.items
+    if len(user_list) == 0:
+        flash("Thank you! you add all monkeys as friend.")
+    return render_template("fast/monkeyfriends.html", pagination=pagination,
+                           btn_best=btn_best, user=user_list,
+                           id_monkey=id_monkey, m_user=m_user)
+
+
 @fast.route("/confirm", methods=["GET", "PUT"])
 def confirm():
+    """getting the id of both monkey"""
+    id_friend = request.args.get("id", type=int)
+    id_user = request.args.get("id2", type=int)
     """friend confirmation"""
-    id_confirm = request.args.get("id", type=int)
-    userid = current_user.id
-    f_confirm = Friend.query.filter(Friend.friend_account == userid).\
-        filter(Friend.approved == False).filter(User.id == id_confirm).first()
-    if not f_confirm.approved:
-            f_confirm.approved = True
-            db.session.add(f_confirm)
-            db.session.commit()
-            flash("Thank you accepting the friend request!")
-            return redirect(url_for('fast.index'))
-            flash('Error! Nothing added to the database!')
+    mainMonkey = User.query.get(id_user)
+    othermonkey = User.query.get(id_friend)
+    q = Friend.query.join(User.tag).filter(Friend.friend_account == id_friend).\
+        filter(User.id == id_user).first()
+    if q is None:
+        f = Friend(friend_account=id_friend, approved=True, bestfriend=False)
+        db.session.add(f)
+        db.session.commit()
+        tag = mainMonkey.tag.append(f)
+        db.session.commit()
+        flash("Thank you! Now,{0} is your Friend!!".format(othermonkey.name))
+        return redirect(url_for("fast.index"))
     else:
-        flash("your friendship confirmed")
+            flash("Remember you sent friend request!")
     return redirect(url_for("fast.index"))
+
+
 @fast.route("/delete/<int:id>", methods=["GET", "DELETE"])
 def delete(id):
-    """rejecting friend request"""
+    """remove monkey"""
     user = User.query.get_or_404(id)
-    q = Friend.query.join(User.tag).filter(User.id == id).\
-        filter(Friend.friend_account == current_user.id).first()
     try:
-        if q:
-            db.session.delete(q)
+        if user:
+            db.session.delete(user)
             db.session.commit()
-            flash("YOU REJECT THE FRIENDSHIP REQUEST!")
+            flash("{0} is removed!".format(user.name))
             return redirect(url_for("fast.index"))
     except:
         flash("database missing \n")
-    return redirect(url_for("fast.friendrequest"))
-@fast.route("/acceptedFriend", methods=["GET", "POST"])
-def acceptedFriend():
-    """accepted friend list"""
-    userid = current_user.id
-    f = User.query.join(User.tag).first()
-    if f is None:
-        flash('Please add monkey! Now you don\'t have friend')
-        return redirect(url_for('fast.userlist'))
-    '''To check best friend check'''
-    bfriend = False
-    befriend = Friend.query.join(User.tag).\
-        filter(Friend.friend_account == userid).\
-        filter(Friend.bestfriend is True)
-    for i in befriend:
-        if i.bestfriend:
-            bfriend = True
-    accepted_friends = PersonalInfo.query.join(User.user_info).join(User.tag).\
-        filter(Friend.friend_account == userid).\
-        filter(Friend.approved is True).\
-        filter(Friend.bestfriend is False).all()
-    accepted_other = []
-    return render_template('fast/acceptedFriend.html', \
-            accepted_friends=accepted_friends, bfriend=bfriend, \
-            accepted_other=accepted_other)
-@fast.route('/bestFriend', methods=['GET', 'POST'])
+    return redirect(url_for("fast.index"))
+
+
+@fast.route("/friends", defaults={"page": 1})
+@fast.route("/friends", methods=["GET", "POST"])
+def friends():
+    f_account = []
+    """To list all friends"""
+    id_user = request.args.get('id', type=int)
+    m_user = User.query.filter(User.id == id_user).first()
+    page = request.args.get("page", 1, type=int)
+    """Friend add check"""
+    check = Friend.query.join(User.tag).filter(User.id == id_user)
+    if check:
+        for i in check:
+            f_account.append(i.friend_account)
+    pag = User.query.filter(User.id != id_user).filter(User.id.in_(f_account)).\
+        order_by(User.member_since.desc()).\
+        paginate(page, per_page=current_app.config["USER_PER_PAGE"],
+                 error_out=False)
+    user_l = pag.items
+    if len(user_l) == 0:
+        flash("Please Friend monkeys!")
+    return render_template('fast/friends.html', pag=pag, user_l=user_l,
+                           m_user=m_user, id_user=id_user)
+
+
+@fast.route('/unFriend', methods=['GET', 'DELETE'])
+def unfriend():
+    """deleting friend from friendship list"""
+    id_friend = request.args.get("id", type=int)
+    id_user = request.args.get("id2", type=int)
+    mainMonkey = User.query.get(id_user)
+    f_Monkey = User.query.get(id_friend)
+    othermonkey = Friend.query.filter(Friend.friend_account == id_friend).\
+        first()
+    f_all = mainMonkey.tag
+    f_remove = f_all.remove(othermonkey)
+    db.session.commit()
+    flash("you are unfreind {0}!! \n".format(f_Monkey.name))
+    return redirect(url_for('fast.index'))
+
+
+@fast.route('/bestFriend')
 def bestFriend():
-    """best friend add"""
-    id_friend = request.args.get('id', type=int)
-    userid = current_user.id
-    q = Friend.query.join(User.tag).filter(Friend.friend_account == userid).\
-        filter(User.id == id_friend).first()
-    if q.bestfriend:
-        flash('Sorry! you already have one best friend')
-        return redirect(url_for('fast.bestFriendList'))
-    else:
+    """best friend list if there is best friend for the current user """
+    """getting the id of both monkey"""
+    id_friend = request.args.get("id", type=int)
+    id_user = request.args.get("id2", type=int)
+    """friend confirmation"""
+    mainMonkey = User.query.get(id_user)
+    othermonkey = User.query.get(id_friend)
+    q = Friend.query.join(User.tag).filter(Friend.friend_account == id_friend).\
+        filter(User.id == id_user).first()
+    if q is None:
+        f = Friend(friend_account=id_friend, approved=True, bestfriend=True)
+        db.session.add(f)
+        db.session.commit()
+        tag = mainMonkey.tag.append(f)
+        db.session.commit()
+        flash("Thank you! Now, {0} is your best friend!!".
+              format(othermonkey.name))
+        return redirect(url_for("fast.index"))
         q.bestfriend = True
         db.session.add(q)
         db.session.commit()
-        flash('Thank You! You are having Best Friend!')
-        return redirect(url_for('fast.index'))
-@fast.route('/unFriend', methods=['GET', 'DELETE'])
-def unFriend():
-    """deleting friend from friendship list"""
-    id_friend = request.args.get('id', type=int)
-    account = User.query.get_or_404(id_friend)
-    if account:
-        try:
-            f_account = Friend.query.join(User.tag).\
-                filter(Friend.friend_account == current_user.id).\
-                filter(User.id == id_friend).first()
-            db.session.delete(f_account)
-            db.session.commit()
-            flash('You are Unfriend!')
-        except:
-            flash("database missing!! \n")
-        return redirect(url_for('fast.acceptedFriend'))
-    else:
-        flash('User not found!')
-        return redirect(url_for('fast.acceptedFriend'))
-    return redirect(url_for('fast.index'))
-@fast.route('/bestFriendList')
-def bestFriendList():
-    """best friend list if there is best friend for the current user """
-    userid = current_user.id
-    best_f = User.query.join(User.tag).filter(Friend.friend_account == userid).\
-        filter(Friend.bestfriend is True).first()
-    if best_f is None:
-        flash('Please add Best Friend or add Friend first')
-        return redirect(url_for('fast.index'))
-    else:
-        userid = best_f.id
-        bestList = PersonalInfo.query.join(User.user_info).\
-            filter(PersonalInfo.user_id == userid)
-    return render_template('fast/bestFriendList.html', bestList=bestList)
-@fast.route('/cancel', methods=['GET', 'POST'])
-def cancelbestfriend():
-    """deleting best frendship"""
-    id_friend = request.args.get('id', type=int)
-    userid = current_user.id
-    best_f = Friend.query.join(User.tag).\
-        filter(Friend.friend_account == userid).\
-        filter(Friend.bestfriend is True).first()
-    if best_f.bestfriend:
-        best_f.bestfriend = False
-    db.session.add(best_f)
-    db.session.commit()
-    flash('Best Friend canceled!')
-    return redirect(url_for('fast.index'))
-@fast.route('/follower', methods=['GET', 'POST'])
-def follower():
-    """adding follower"""
-    id_follower = request.args.get('id', type=int)
-    userid = current_user.id
-    follower = User.query.get(id_follower)
-    currentuser = User.query.get(userid)
-    q = follower.followed.filter(User.id == userid).first()
-    if q is None:
-        f = follower.followed.append(currentuser)
+        return redirect(url_for("fast.index"))
+    elif not q.bestfriend:
+        q.bestfriend = True
+        db.session.add(q)
         db.session.commit()
-        flash('Thankyou! you are following {0}'.format(follower.username))
-        return redirect(url_for('fast.followerlist'))
+        return redirect(url_for("fast.index"))
     else:
-        flash('Sorry! You are already following {0}'.format(follower.username))
-        return redirect(url_for('fast.followerlist'))
-    return redirect(url_for('fast.index'))
-@fast.route('/followerlist',  methods=['GET', 'POST'])
-def followerlist():
-    """"follower list"""
-    userid = current_user.id
-    follower = User.query.get(userid)
-    f_list = follower.followed.all()
-    return render_template('fast/follow.html', f_list=f_list)
-@fast.route('/unfollow',  methods=['GET', 'DELETE'])
-def unfollow():
-    """"Unfollow"""
-    id_follower = request.args.get('id', type=int)
-    userid = current_user.id
-    follower = User.query.get(userid)
-    currentuser = User.query.get(id_follower)
-    f_list = follower.followed.all()
-    check = False
-    for i in f_list:
-        flash('{0}'.format(i.id))
-        if id_follower == i.id:
-            check = True
-    if check:
-        f = follower.followed.remove(currentuser)
-        db.session.commit()
-        flash('You are unfollow {0}'.format(currentuser.username))
-        return redirect(url_for('fast.followerlist'))
-    return redirect(url_for('fast.index'))
+        flash("You have best friend!")
+    return redirect(url_for("fast.index"))
+
+
+@fast.route("/sortbyname", defaults={"page": 1})
+@fast.route("/sortbyname")
+def sortbyname():
+    pagination = []
+    user_list = []
+    """To list all users"""
+    check = True
+    page = request.args.get("page", 1, type=int)
+    pagination = User.query.order_by(User.name.asc()).\
+        paginate(page,
+                 per_page=current_app.config["USER_PER_PAGE"], error_out=False)
+    user_list = pagination.items
+    return render_template("fast/index.html",
+                           pagination=pagination, user=user_list, check=check)
+
+
+@fast.route("/sortbybestfriend", defaults={"page": 1})
+@fast.route("/sortbybestfriend")
+def sortbybfriend():
+    check2 = True
+    pagination = []
+    user_list = []
+    """To list all users"""
+    page = request.args.get("page", 1, type=int)
+    pagination = User.query.join(User.tag).order_by(Friend.bestfriend).\
+        paginate(page,
+                 per_page=current_app.config["USER_PER_PAGE"], error_out=False)
+    user_list = pagination.items
+    return render_template("fast/index.html",
+                           pagination=pagination, user=user_list, check2=check2)
+
+
+@fast.route("/sortbynfriends", defaults={"page": 1})
+@fast.route("/sortbynfriends")
+def sortbynfriends():
+    check3 = True
+    pagination = []
+    user_list = []
+    """To list all users"""
+    page = request.args.get("page", 1, type=int)
+    pagination = User.query.join(User.tag).order_by(func.count(Friend.approved).desc()).group_by(User.id).\
+        paginate(page,
+                 per_page=current_app.config["USER_PER_PAGE"], error_out=False)
+    user_list = pagination.items
+    return render_template("fast/index.html",
+                           pagination=pagination, user=user_list, check3=check3)

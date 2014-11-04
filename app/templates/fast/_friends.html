@@ -4,11 +4,16 @@
 {% else %}
 {% set base_index = 0 %}
 {% endif %}
-{% for p in user %}
+{% for p in user_l %}
 {% set index = loop.index + base_index %}
 <li class="user">
-{% include "fast/_users.html" %}
+{% include "fast/_friend.html" %}
 </li>
 
 {% endfor %}
 </ul>
+
+
+
+    
+    

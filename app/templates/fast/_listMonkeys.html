@@ -1,0 +1,30 @@
+<div class="featurette" >
+    <div class="user-avatar">
+        <img src="{{p.avatar(95)}}"><br>
+           <a class="btn btn-primary pull-left" name='viewprofile' data-id="{{p.id}}"  href="{{url_for('fast.monkeyProfile',id=p.id)}}">View profile</a> 
+    </div>
+   
+            {% if p.name %}
+            <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.confirm',id=p.id,id2=id_monkey)}}">+1 <span class="glyphicon glyphicon-user"></span></a>
+            <h3 class="featurette-heading">
+                {{ p.name }}
+            </h3>
+            {% endif %}
+           
+            {% if p.name %}
+            <h3>
+               Age: {{ p.age }}
+            </h3>
+            {% endif %}
+            {% if btn_best %}
+            <a class="btn btn-primary pull-right" name='addbestfriend' data-id="{{p.id}}"  href="{{url_for('fast.bestFriend',id=p.id,id2=id_monkey)}}">+1 best friend<span class="glyphicon glyphicon-user"></span></a>
+            {% endif %}
+            {% if p.email %}
+            <h3>
+               email: {{ p.email }}
+            </h3>
+            {% endif %}
+          
+         
+</div>
+

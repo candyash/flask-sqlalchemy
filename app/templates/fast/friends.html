@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block page_content %}
+
+
+<div class="container">
+      <div class="jumbotron">
+        <h1>Welcome! {{m_user.name}}</h1>
+        <p class="lead">Here is your friends!</p>
+      </div> 
+    </div
+</div>
+ {% if user_l %}
+    <h3>Monkey List</h3> 
+{% include "fast/_friends.html" %}   
+ <div class="pager">
+<ul class="pager">
+    {% if pag.has_prev %}
+    <li class="previous"><a href="{{ url_for('fast.index',page=pag.prev_num) }}#monkeys">&larr; Newer</a></li>
+    {% else %}
+    <li class="previous disabled"><a href="#">&larr; Newer</a></li>
+    {% endif %}
+    {% if pag.has_next %}
+    <li class="next"><a href="{{ url_for('fast.index', page=pag.next_num) }}#monkeys">Older &rarr;</a></li>
+    {% else %}
+    <li class="next disabled"><a href="#">Older &rarr;</a></li>
+    {% endif %}
+</ul>
+</div>
+{% endif %}
+  <!-- Footer -->
+   <hr class="featurette-divider">
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Ashenafi Legehar 2014</p>
+                </div>
+            </div>
+        </footer>
+
+{% endblock %}
+
+
+

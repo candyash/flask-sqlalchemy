@@ -1,20 +1,25 @@
 {% extends "base.html" %}
 {% block page_content %}
 
-{% if current_user.is_authenticated() %}
- <div class="container">
-         <div class="jumbotron">
-          <h1>People you may know</h1>
-             <h2>Enjoy!</h2>
-           </div>
-               
-         </div>
-       
-   
 
-
+<div class="container">
+      <div class="jumbotron">
+        <h1>Fast Monkey app</h1>
+        <p class="lead">The app powered by flask! Enjoy!</p>
+        <p><a class="btn btn-lg btn-success" href="{{url_for('fast.addMonkey')}}" role="button">Add monkey</a></p>
+      </div>
+    </div
+</div>
  {% if user %}
-    <h3>Monkey List</h3> 
+    {% if check %}
+       <h3>Sort by name</h3>
+    {% endif %}
+    {% if check2 %}
+       <h3>Sort by Best friends</h3>
+    {% endif %}
+     {% if check3 %}
+       <h3>Sort by number of friends</h3>
+    {% endif %}
 {% include "fast/_user.html" %}   
  <div class="pager">
 <ul class="pager">
@@ -41,43 +46,16 @@
             </div>
         </footer>
 
-{% else %}
+
 
     
     
-<div class="container">
-      
-
-      <div class="jumbotron">
-        <h1>Fast Monkey app</h1>
-        <p class="lead">The app powered by flask! Enjoy!</p>
-        <p><a class="btn btn-lg btn-success" href="{{url_for('fast.Register')}}" role="button">Sign up </a></p>
-      </div>
-
-      <div class="row marketing">
-        <div class="col-lg-6">
-          <h4>app feature</h4>
-          <p>Add friends, follow, unfollow, delete and add best friend</p>
-
-          
-        </div>
-      </div>
-
-       <footer>
-        <p>&copy; 2014 ashenafi, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
-      </footer>
-      
-
-    </div
-
-
-
-</div>
 
 
 
 
-{% endif %}
+
+
 
 {% endblock %}
 

@@ -7,29 +7,22 @@ from app import db
 from app.models import User
 
 
-
-
 if os.path.exists('.env'):
     print('Importing environment from .env...')
     for line in open('.env'):
         var = line.strip().split('=')
         if len(var) == 2:
             os.environ[var[0]] = var[1]
-            
-     
-            
-
 app = create_app(os.environ['FLASK_CONFIG'] or 'default')
-magrate=Migrate(app,db)
+magrate = Migrate(app, db)
 manager = Manager(app)
-manager.add_command('db',MigrateCommand)
+manager.add_command('db', MigrateCommand)
+
 
 @manager.command
 def init_db():
     db.drop_all()
     db.create_all()
-
-
 
 
 @manager.command
@@ -58,8 +51,4 @@ def adduser(email, username, admin=False):
 
 
 if __name__ == '__main__':
-  
-   manager.run()
-
-
-
+            manager.run()

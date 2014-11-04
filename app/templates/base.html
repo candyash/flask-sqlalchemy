@@ -25,53 +25,20 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li><a href="{{url_for('fast.index')}}">Home</a></li>
-                 
-                {% if current_user.is_authenticated() %}
-                
-                <li><a href="{{url_for('fast.user', username=current_user.username)}} ">Profile</a></li>
-                <li><a href="{{url_for('fast.acceptedFriend')}}">Friends</a></li>
-                <li><a href="{{url_for('fast.bestFriendList')}}">Best Friend</a></li>
-                <li><a href="{{url_for('fast.followerlist')}}">Follower</a></li>
-                
-              {% set request_count=current_user.for_approval(True).count()%}
-                <li>
-                    
-                    <a href="{{url_for('fast.friendrequest')}}">Friends request
-                        {% if request_count %}
-                        <span class="badge badge-red">{{request_count}}</span>
-                        {% endif %}
-                    </a>
-                </li>
-              
-                    
-                    <li>
-                        <a href="">
-                            
-                            <span class="badge badge-red"></span>
-                          
-                        </a>
-                    </li>
-                    {% endif %}
-                
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-                {% if not current_user.is_authenticated() %}
-                
-                
-                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-            
-           
-               {% else %}
-                   
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="{{current_user.avatar(40)}}"> {{current_user.username}}<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                    </ul>
-                </li>
-                {% endif %}
+        <ul class="nav navbar-nav navbar">
               
-            </ul>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sort</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('fast.sortbyname') }}">Sort by Name</a></li>
+                    <li><a href="{{ url_for('fast.sortbybfriend') }}">Sort by Best Friend</a></li>
+                    <li><a href="{{ url_for('fast.sortbynfriends') }}">Sort by Number of Friends</a></li>
+                </ul>
+            </li>
+        
+         </ul>
+          
         </div>
     </div>
 </div>

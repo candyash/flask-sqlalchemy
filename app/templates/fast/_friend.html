@@ -1,0 +1,25 @@
+<div class="featurette" >
+    <div class="user-avatar">
+        <img src="{{p.avatar(95)}}"><br>
+           <a class="btn btn-primary pull-left" name='viewprofile' data-id="{{p.id}}"  href="{{url_for('fast.monkeyProfile',id=p.id)}}">View profile</a> 
+    </div>
+   
+            {% if p.name %}
+            <a class="btn btn-danger pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.unfriend',id=p.id,id2=id_user)}}"> Un friend <span class="glyphicon glyphicon-trash"></span></a>
+            <h3 class="featurette-heading">
+                {{ p.name }}
+            </h3>
+            {% endif %}
+            
+            {% if p.age %}
+            <h4 class="lead">
+                Age :{{ p.age}}
+            </h4>
+            {% endif %}
+             {% if p.email %}
+            <h4 class="lead">
+                Email :{{ p.email}}
+            </h4>
+            {% endif %}
+         
+</div>

@@ -1,14 +1,30 @@
 <div class="featurette" >
-    <img class="featurette-image img-circle img-responsive pull-right" src="{{current_user.avatar(80)}}">
-    {% if current_user.for_approval(True) %}
-            <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.friendadd',id=p.user_id)}}">+1 Add Friend</a>
-    {% endif %}
+    <div class="user-avatar">
+        <img src="{{p.avatar(95)}}"><br>
+           <a class="btn btn-primary pull-left" name='viewprofile' data-id="{{p.id}}"  href="{{url_for('fast.monkeyProfile',id=p.id)}}">View profile</a> 
+    </div>
+    
+    
+            {% if p.name %}
+            <a class="btn btn-primary pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.monkeyfriend',id=p.id)}}">+1 <span class="glyphicon glyphicon-user"></span></a>
             <h3 class="featurette-heading">
-               {% if p.first_name %} {{ p.first_name }}{% endif %}{% if p.last_name %} {{ p.last_name }}{% endif %}
+                {{ p.name }}
             </h3>
-            {% if p.age %}<h4 class="lead">Age :{{ p.age}}{% endif %}</h4>
-            {% if p.location %}<h4 class="lead">Location <a href="http://maps.google.com?q={{ p.location }}">{{ p.location }}</a>{% endif %}</h4>
-             <a class="btn btn-success pull-right" name='add' data-id="{{p.id}}"  href="{{url_for('fast.follower',id=p.user_id)}}">Follow</a>
-      
-            {% if p.bio %}<h4 class="lead">Profession {{ p.bio }}</p>{% endif %}</4>
-</div>  
+            {% endif %}
+            <br>
+            <a class="btn btn-danger pull-right" name='remove' data-id="{{p.id}}"  href="{{url_for('fast.delete',id=p.id)}}"> <span class="glyphicon glyphicon-trash"></span></a>
+            <a class="btn btn-success pull-right" name='remove' data-id="{{p.id}}"  href="{{url_for('fast.friends',id=p.id)}}">{{p.name}} Friends</span></a>     
+            {% set name_best=p.best_f().name %}
+             {% if name_best %}
+            <h3 class="lead">Best Friend :{{name_best}} </h3>
+            {% endif %}
+            
+             {% set t_count=p.f_count().count()%}
+            {% if t_count %}
+            <h3 class="lead">friends  <span class="badge">{{t_count}}</span></h3>
+               
+            {% else %}
+            <h3 class="lead"> friends  <span class="badge">0</span> </h3>
+            {% endif %}
+            
+</div>

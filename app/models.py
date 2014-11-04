@@ -1,184 +1,81 @@
 from datetime import datetime
-import hashlib
-from markdown import markdown
-import bleach
-from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import request, current_app
-from flask.ext.login import UserMixin
 from . import db
 from hashlib import md5
 
 
-friend_tag = db.Table('friend_tag',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('friend_id', db.Integer, db.ForeignKey('friends.id'), unique=True)
-
-)
-followers = db.Table('followers',
-    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
-)
+friend_tag = db.Table('friend_tag', db.Column('user_id', db.Integer,
+                      db.ForeignKey('users.id')), db.Column('friend_id',
+                      db.Integer, db.ForeignKey('friends.id'), unique=True))
 
 
-
-class User(UserMixin,db.Model):
+class User(db.Model):
     __tablename__ = 'users'
-
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), default="None", nullable=False)
+    age = db.Column(db.Integer, default=20, nullable=False)
     email = db.Column(db.String(64),
-                      nullable=False, unique=True, index=True)
-    username = db.Column(db.String(64),
-                         nullable=False, unique=True, index=True)
-    is_admin = db.Column(db.Boolean)
-    password_hash = db.Column(db.String(128))
-    user_info=db.relationship('PersonalInfo' ,uselist=False,backref='users',cascade="save-update, merge, delete")
-    last_seen = db.Column(db.DateTime)
-    tag = db.relationship("Friend",
-                secondary=friend_tag,
-                backref=db.backref('friend_tag', lazy='dynamic'),
-                lazy='dynamic',cascade="save-update, merge, delete"
-                
-                )
-    
-    followed = db.relationship('User', 
-                               secondary=followers, 
-                               primaryjoin=(followers.c.follower_id == id), 
-                               secondaryjoin=(followers.c.followed_id == id), 
-                               backref=db.backref('followers', lazy='dynamic'), 
-                               lazy='dynamic',cascade="save-update, merge, delete")
-    
-    
-    def __init__(self, email, username, is_admin,password):
-        self.email=email
-        self.username=username
-        self.is_admin=is_admin
-        self.password_hash=generate_password_hash(password)
-   
-    def follow(self, user):
-        if not self.is_following(user):
-            self.followed.append(user)
-            return self
-
-    def unfollow(self, user):
-        if self.is_following(user):
-            self.followed.remove(user)
-            return self
-
-    def is_following(self, user):
-        return self.followed.filter(followers.c.followed_id == users.id).count() > 0
-        
-       
-    
-      
-    def __repr__(self):
-        return "<User(email='%s', username='%s')>" %(self.email, self.username)
-    
-
-    
-    
-    def for_approval(self, admin=False):
-    
-        if admin :
-            return Friend.for_approval(self.id)
-    def approved(self):
-        return self.friend.filter_by(approved=True)
-    def get_api_token(self,expiration=5000 ):
-        s=Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'user':self.id}).decode('utf-8')
-    def validate_api_token(token):
-        s=Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data=s.loads(token)
-        except:
-            return None
-        id=data.get('user')
-        if id:
-            return User.query.get(id)
-        return
- 
-    
- 
-    @property
-    def password(self):
-        raise AttributeError('password is not a readable')
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-    def verify_password(self,password):
-        return check_password_hash(self.password_hash,password)
-    def avatar(self, size):
-        return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() + '?d=mm&s=' + str(size)
-
-  
-class PersonalInfo(db.Model):
-    __tablename__= 'user_info'
-    id=db.Column(db.Integer, primary_key=True)
-    first_name=db.Column(db.String(30), default="None")
-    last_name=db.Column(db.String(30), default="None")
-    age=db.Column(db.Integer,default=20)
-    location = db.Column(db.String(64),default="Helsinki")
-    bio = db.Column(db.Text(), default="None")
+                      nullable=False, unique=True)
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
-    user_id=db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
-    
-    def __init__(self, first_name,last_name,age, location, bio, user_id):
-        self.first_name=first_name
-        self.last_name=last_name
-        self.age=age
-        self.location=location
-        self.bio=bio
-        self.user_id=user_id
-       
+    tag = db.relationship("Friend", secondary=friend_tag,
+                          backref=db.backref('friend_tag', lazy='dynamic'),
+                          cascade="all, delete-orphan", single_parent=True)
 
-      
+    def __init__(self, name, age, email):
+        self.name = name
+        self.age = age
+        self.email = email
+
     def __repr__(self):
-        return "<User Info(FirstName='%s', LastName='%s')>" %(self.first_name, self.last_name)
-   
-     
-    
+        return "<User(name = '%s', email = '%s')>" % (self.name, self.email)
+
+    def avatar(self, size):
+        return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() \
+            + '?d=monsterid&s=' + str(size)
+
+    def best_f(self):
+        b_friend = Friend.best(self.id)
+        return b_friend
+
+    def f_count(self):
+        friend_count = Friend.for_count(self.id)
+        return friend_count
+    def f_tag(self,f):
+        _tag=self.tag.append(f)
+        return _tag
+        
+
+
 class Friend(db.Model):
     __tablename__ = 'friends'
-    id=db.Column(db.Integer,primary_key=True )
-    friend_account=db.Column(db.Integer)
-    approved=db.Column(db.Boolean, default=False)
-    bestfriend=db.Column(db.Boolean, default=False)
+    id = db.Column(db.Integer, primary_key=True)
+    friend_account = db.Column(db.Integer)
+    approved = db.Column(db.Boolean, default=False)
+    bestfriend = db.Column(db.Boolean, default=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    
-   
-    
-    def __init__(self, friend_account,approved,bestfriend):
-        self.friend_account=friend_account
-        self.approved=approved
-        self.bestfriend=bestfriend
+    def __init__(self, friend_account, approved, bestfriend):
+        self.friend_account = friend_account
+        self.approved = approved
+        self.bestfriend = bestfriend
+
     def __repr__(self):
-        return '<sent request {}'.format(self.friend_account)
-    
+        return '<friend account {}'.format(self.friend_account)
+
     @staticmethod
-    def for_approval(userId):
-        return Friend.query.filter(Friend.approved==False).filter(Friend.friend_account==userId)
+    def best(id_user):
+        f_account = []
+        check = Friend.query.join(User.tag).filter(User.id == id_user).\
+            filter_by(bestfriend = True)
+        if check:
+            for i in check:
+                f_account.append(i.friend_account)
+        m_best = User.query.filter(User.id.in_(f_account)).first()
+        return m_best
 
-
-
+    @staticmethod
+    def for_count(id_user):
+        f_count = Friend.query.join(User.tag).filter(User.id == id_user).\
+            filter_by(approved = True)
+        return f_count
     
-    
-    
-    
-
-
-    
-    
-
-    
-
-
-   
-
-    
-
-
- 
-
-  
-

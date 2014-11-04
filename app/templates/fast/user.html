@@ -2,15 +2,19 @@
 
 {% block page_content %}
 <div class="page-header user-profile">
-    <div class="user-avatar"><img src="{{current_user.avatar(128)}}"></div>
-    {% if current_user == user %}<a class="btn btn-default pull-right" href="{{ url_for('fast.profile') }}">Edit Profile</a>{% endif %}
-    <h1>{{ user.username }}</h1>
-    <p>
-       Name: {% if personal.first_name %}{{ personal.first_name }}{% endif %}{% if personal.last_name %} {{ personal.last_name }}<br>{% endif %}
-       Age: {% if personal.age %}{{ personal.age}}<br>{% endif %}
-       Address: {% if personal.location %}<a href="http://maps.google.com?q={{ personal.location }}">{{ personal.location }}</a><br>{% endif %}
-    </p>
-    {% if personal.bio %}<p>{{ personal.bio }}</p>{% endif %}
+    <div class="user-avatar"><img src="{{user.avatar(100)}}"></div>
+    {% if user %}<a class="btn btn-default pull-right" href="{{ url_for('fast.edit', id=user.id) }}">Edit Profile</a>{% endif %}
+    <h1>{{ user.name }}</h1>
+    
+      <h4>
+        Age: {% if user.age %}{{ user.age}}{% endif %}
+      </h4>
+       
+       <h4>
+        Email: {% if user.email %}{{ user.email}}{% endif %}
+       </h4>
+    
+   
 </div>
  
 {% endblock %}
