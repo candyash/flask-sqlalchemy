@@ -241,7 +241,7 @@ def sortbybfriend():
     user_list = []
     """To list all users"""
     page = request.args.get("page", 1, type=int)
-    pagination = User.query.join(User.tag).order_by(Friend.bestfriend).\
+    pagination = User.query.join(User.tag).filter(Friend.bestfriend==True).order_by(Friend.bestfriend.asc()).\
         paginate(page,
                  per_page=current_app.config["USER_PER_PAGE"], error_out=False)
     user_list = pagination.items
