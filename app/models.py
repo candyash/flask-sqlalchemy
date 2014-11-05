@@ -40,10 +40,7 @@ class User(db.Model):
     def f_count(self):
         friend_count = Friend.for_count(self.id)
         return friend_count
-    def f_tag(self,f):
-        _tag=self.tag.append(f)
-        return _tag
-        
+
 
 
 class Friend(db.Model):

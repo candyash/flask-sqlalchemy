@@ -178,6 +178,7 @@ def unfriend():
         first()
     f_all = mainMonkey.tag
     f_remove = f_all.remove(othermonkey)
+    db.session.delete(othermonkey)
     db.session.commit()
     flash("you are unfreind {0}!! \n".format(f_Monkey.name))
     return redirect(url_for('fast.index'))
