@@ -6,8 +6,8 @@ from flask.ext.login import UserMixin
 
 
 friend_tag = db.Table('friend_tag', db.Column('user_id', db.Integer,
-                      db.ForeignKey('users.id')), db.Column('friend_id',
-                      db.Integer, db.ForeignKey('friends.id'), unique=True))
+                      db.ForeignKey('users.id',ondelete="CASCADE")), db.Column('friend_id',
+                      db.Integer, db.ForeignKey('friends.id',ondelete="CASCADE"), unique=True))
 
 
 class User(db.Model, UserMixin):
