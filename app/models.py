@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import request, current_app
 from . import db
 from hashlib import md5
+from flask.ext.login import UserMixin
 
 
 friend_tag = db.Table('friend_tag', db.Column('user_id', db.Integer,
@@ -9,7 +10,7 @@ friend_tag = db.Table('friend_tag', db.Column('user_id', db.Integer,
                       db.Integer, db.ForeignKey('friends.id'), unique=True))
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), default="None", nullable=False)

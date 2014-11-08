@@ -176,8 +176,8 @@ def unfriend():
     f_Monkey = User.query.get(id_friend)
     othermonkey = Friend.query.filter(Friend.friend_account == id_friend).\
         first()
-    f_all = mainMonkey.tag
-    f_remove = f_all.remove(othermonkey)
+    f_remove = mainMonkey.tag.remove(othermonkey)
+    db.session.commit()
     db.session.delete(othermonkey)
     db.session.commit()
     flash("you are unfreind {0}!! \n".format(f_Monkey.name))
