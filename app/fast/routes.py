@@ -172,15 +172,20 @@ def unfriend():
     """deleting friend from friendship list"""
     id_friend = request.args.get("id", type=int)
     id_user = request.args.get("id2", type=int)
-    mainMonkey = User.query.get(id_user)
+    mainMonkey = User.query.join(User.tag).filter(User.id==id_user).one()
+    
     f_Monkey = User.query.get(id_friend)
-    othermonkey = Friend.query.filter(Friend.friend_account == id_friend).\
+    othermonkey = Friend.query.join(User.tag).filter(User.id==id_user).filter(Friend.friend_account == id_friend).\
         first()
-    f_remove = mainMonkey.tag.remove(othermonkey)
-    db.session.commit()
-    db.session.delete(othermonkey)
-    db.session.commit()
-    flash("you are unfreind {0}!! \n".format(f_Monkey.name))
+    f_tag=mainMonkey.tag
+    for i in f_tag:
+        if i == othermonkey:
+            f_remove = mainMonkey.tag.remove(othermonkey)
+            db.session.delete(othermonkey)
+            db.session.commit()
+            flash("you are unfriend {0}!! \n".format(f_Monkey.name))
+            return redirect(url_for('fast.index'))
+    flash("Sorry {0} cannot unfriend!! \n".format(f_Monkey.name))
     return redirect(url_for('fast.index'))
 
 

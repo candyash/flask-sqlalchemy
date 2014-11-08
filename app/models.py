@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(64),
                       nullable=False, unique=True)
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
-    tag = db.relationship("Friend", secondary=friend_tag,
+    tag = db.relationship("Friend", secondary=friend_tag,lazy="dynamic",
                           backref=db.backref('friend_tag', lazy='dynamic'),
                           cascade="all, delete-orphan", single_parent=True)
 
