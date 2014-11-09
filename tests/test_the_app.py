@@ -2,6 +2,8 @@ import unittest
 from flask.ext.testing import TestCase 
 from app import create_app, db
 from app.models import User, Friend
+from flask import request, url_for
+import flask
 
 
 class BaseTestCase(TestCase):
@@ -10,7 +12,6 @@ class BaseTestCase(TestCase):
         self.app = create_app('testing')
         return self.app
     def setUp(self):
-        
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -34,20 +35,25 @@ class  FastTestCase(BaseTestCase):
         db.session.add_all([d1, d2])
         db.session.commit()
         u1=User.query.get(1)
+        self.assertIsNotNone(u1)
         self.assertTrue( d1.id == int(u1.id))
+        
     
-    def test_add_monkey(self):
+    def test_add_monkey_empty(self):
         data={}
         response=self.client.get('/addMonkey')
         self.assertEqual(response.status_code, 200)
         response=self.client.post('/addMonkey',data=data, content_type='html/text')
         self.assertTrue('This field is required' in  response.data)
-    def test_add_money_correct(self):
+    def test_add_money_databse(self):
         data=dict(name='admin', email='adminu@gmail.com', age=25)
-        response=self.client.get('/addMonkey')
-        self.assertEqual(response.status_code, 200)
-        response=self.client.post('/addMonkey',data=data,follow_redirects=True )
+        response=self.client.post(url_for('fast.addMonkey'),data=data )
+        self.assertEqual(response.status_code,200)
         self.assertTrue('User admin was registered successfully', response.data)
+    def test_add_money_thesame_emailaddress(self):
+        data=dict(name='admin2', email='adminu@gmail.com', age=25)
+        response=self.client.post('/addMonkey',data=data,follow_redirects=True )
+        self.assertTrue('Error is found. The user already registerd to the system!', response.data)
        
     def test_monkey_list(self):
         m1 = User(name='admin2', email='admin2@gmail.com', age=25)
@@ -139,9 +145,23 @@ class  FastTestCase(BaseTestCase):
         
         response=self.client.delete('/unFriend?id2=%d&id=%d'%(e1.id,e2.id), follow_redirects=True )
         self.assertTrue('admine2 is removed!' ,  response.data)
+    def test_best_friend(self):
+        e1 = User(name='admine2', email='admine2@gmail.com', age=25)
+        e2 = User(name='teste2', email='teste2@gmail.com', age=27)
+        db.session.add_all([e1, e2])
+        f=Friend(friend_account=e2.id, approved=True, bestfriend=True)
+        db.session.add(f)
+        db.session.commit()
+        e1.tag.append(f)
+        db.session.commit()
         
-         
-        
+        response=self.client.post('/bestFriend?id2=%d&id=%d'%(e1.id,e2.id), follow_redirects=True )
+        self.assertTrue('Thank you! Now, Julia Smith is your best friend!! ' ,  response.data)
+    def test_request_arg(self):
+        app = flask.Flask(__name__)
+        with app.test_client() as c:
+            rv = c.get('/friends?id=4')
+            self.assertEquals(request.args.get('id', type=int),4)
     
       
 
