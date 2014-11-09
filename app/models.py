@@ -6,8 +6,11 @@ from flask.ext.login import UserMixin
 
 
 friend_tag = db.Table('friend_tag', db.Column('user_id', db.Integer,
-                      db.ForeignKey('users.id',ondelete="CASCADE")), db.Column('friend_id',
-                      db.Integer, db.ForeignKey('friends.id',ondelete="CASCADE"), unique=True))
+                      db.ForeignKey('users.id', ondelete="CASCADE")),
+                      db.Column('friend_id',
+                      db.Integer, db.ForeignKey('friends.id',
+                                                ondelete="CASCADE")
+                                , unique=True))
 
 
 class User(db.Model, UserMixin):
@@ -18,7 +21,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(64),
                       nullable=False, unique=True)
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
-    tag = db.relationship("Friend", secondary=friend_tag,lazy="dynamic",
+    tag = db.relationship("Friend", secondary=friend_tag, lazy="dynamic",
                           backref=db.backref('friend_tag', lazy='dynamic'),
                           cascade="all, delete-orphan", single_parent=True)
 
@@ -43,7 +46,6 @@ class User(db.Model, UserMixin):
         return friend_count
 
 
-
 class Friend(db.Model):
     __tablename__ = 'friends'
     id = db.Column(db.Integer, primary_key=True)
@@ -64,7 +66,7 @@ class Friend(db.Model):
     def best(id_user):
         f_account = []
         check = Friend.query.join(User.tag).filter(User.id == id_user).\
-            filter_by(bestfriend = True)
+            filter_by(bestfriend=True)
         if check:
             for i in check:
                 f_account.append(i.friend_account)
@@ -74,6 +76,5 @@ class Friend(db.Model):
     @staticmethod
     def for_count(id_user):
         f_count = Friend.query.join(User.tag).filter(User.id == id_user).\
-            filter_by(approved = True)
+            filter_by(approved=True)
         return f_count
-    

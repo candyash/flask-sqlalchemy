@@ -81,7 +81,8 @@ def monkeyfriend():
     user_list = []
     f_account = []
     m_user = User.query.filter(User.id == id_monkey).first()
-    q = Friend.query.join(User.tag).filter(User.id == id_monkey).filter(Friend.bestfriend == True ).first()
+    q = Friend.query.join(User.tag).filter(User.id == id_monkey).\
+        filter(Friend.bestfriend is True).first()
     if q is None:
         btn_best = True
     elif q.bestfriend:
@@ -93,7 +94,8 @@ def monkeyfriend():
             f_account.append(i.friend_account)
     """To list all users"""
     page = request.args.get("page", 1, type=int)
-    pagination = User.query.filter(User.id != id_monkey).filter(User.id.notin_(f_account)).\
+    pagination = User.query.filter(User.id != id_monkey).\
+        filter(User.id.notin_(f_account)).\
         order_by(User.member_since.desc()).\
         paginate(page, per_page=current_app.config["USER_PER_PAGE"],
                  error_out=False)
@@ -172,12 +174,11 @@ def unfriend():
     """deleting friend from friendship list"""
     id_friend = request.args.get("id", type=int)
     id_user = request.args.get("id2", type=int)
-    mainMonkey = User.query.join(User.tag).filter(User.id==id_user).one()
-    
+    mainMonkey = User.query.join(User.tag).filter(User.id == id_user).one()
     f_Monkey = User.query.get(id_friend)
-    othermonkey = Friend.query.join(User.tag).filter(User.id==id_user).filter(Friend.friend_account == id_friend).\
-        first()
-    f_tag=mainMonkey.tag
+    othermonkey = Friend.query.join(User.tag).filter(User.id == id_user).\
+        filter(Friend.friend_account == id_friend).first()
+    f_tag = mainMonkey.tag
     for i in f_tag:
         if i == othermonkey:
             f_remove = mainMonkey.tag.remove(othermonkey)
@@ -242,30 +243,32 @@ def sortbyname():
 @fast.route("/sortbybestfriend", defaults={"page": 1})
 @fast.route("/sortbybestfriend")
 def sortbybfriend():
-    check2 = True
+    c2 = True
     pagination = []
     user_list = []
     """To list all users"""
     page = request.args.get("page", 1, type=int)
-    pagination = User.query.join(User.tag).filter(Friend.bestfriend==True).order_by(Friend.bestfriend.asc()).\
+    pagination = User.query.join(User.tag).filter_by(bestfriend=True).\
+    order_by(Friend.bestfriend.asc()).\
         paginate(page,
                  per_page=current_app.config["USER_PER_PAGE"], error_out=False)
     user_list = pagination.items
     return render_template("fast/index.html",
-                           pagination=pagination, user=user_list, check2=check2)
+                           pagination=pagination, user=user_list, c2=c2)
 
 
 @fast.route("/sortbynfriends", defaults={"page": 1})
 @fast.route("/sortbynfriends")
 def sortbynfriends():
-    check3 = True
+    c3 = True
     pagination = []
     user_list = []
     """To list all users"""
     page = request.args.get("page", 1, type=int)
-    pagination = User.query.join(User.tag).order_by(func.count(Friend.approved).desc()).group_by(User.id).\
+    pagination = User.query.join(User.tag).\
+        order_by(func.count(Friend.approved).desc()).group_by(User.id).\
         paginate(page,
                  per_page=current_app.config["USER_PER_PAGE"], error_out=False)
     user_list = pagination.items
     return render_template("fast/index.html",
-                           pagination=pagination, user=user_list, check3=check3)
+                           pagination=pagination, user=user_list, c3=c3)
